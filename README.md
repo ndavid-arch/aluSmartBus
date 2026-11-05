@@ -1,4 +1,4 @@
-# ALU SmartBus 🚌
+# ALU SmartBus 
 
 Real-time bus tracking and QR boarding for the African Leadership University (ALU) Rebero ⇄ ALU shuttle.
 
