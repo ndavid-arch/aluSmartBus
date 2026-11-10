@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPS test</title>
+  <style>
+    body { font-family: sans-serif; margin: 16px; }
+    button { font-size: 18px; padding: 12px 16px; margin: 4px 0; width: 100%; }
+    #status { font-weight: bold; margin: 12px 0; }
+    li.gap { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>GPS test (#9)</h1>
+  <button id="start">Start tracking</button>
+  <button id="wake">Keep screen on</button>
+  <p id="status">Not started</p>
+  <ol id="log"></ol>
+
+  <script>
+    // Find the elements on the page by their id
+    const startBtn = document.getElementById("start");
+    const wakeBtn = document.getElementById("wake");
+    const statusEl = document.getElementById("status");
+    const logEl = document.getElementById("log");
+
+    const GAP_LIMIT_SECONDS = 30; // longer than this between readings = the browser stopped sending
+    let lastTime = null; // time of the previous reading, to measure gaps
+    let wakeLock = null; // the active screen lock, or null when the screen may turn off
+
+    // Add one location reading to the list and mark it red if there was a gap
+    function addReading(position) {
+      const now = new Date();
+      const lat = position.coords.latitude.toFixed(5);
+      const lng = position.coords.longitude.toFixed(5);
+      const accuracy = Math.round(position.coords.accuracy);
+
+      // Seconds since the previous reading (0 for the very first one)
+      let gapSeconds = 0;
+      if (lastTime !== null) {
+        gapSeconds = Math.round((now - lastTime) / 1000);
+      }
+      lastTime = now;
+
+      const item = document.createElement("li");
+      item.textContent = `${now.toLocaleTimeString()} · ${lat}, ${lng} (±${accuracy} m) · ${gapSeconds}s since last`;
+
+      // Mark long gaps in red: the browser stopped sending
+      if (gapSeconds > GAP_LIMIT_SECONDS) {
+        item.classList.add("gap");
+      }
+
+      logEl.appendChild(item);
+      statusEl.textContent = `Tracking · ${logEl.children.length} readings`;
+    }
+
+    // Show a message if the phone refuses or can't get a location
+    function showError(error) {
+      statusEl.textContent = "Location error: " + error.message;
+    }
+
+    // Start watching the location when the button is tapped
+    startBtn.addEventListener("click", () => {
+      if (!("geolocation" in navigator)) {
+        statusEl.textContent = "This browser cannot share its location.";
+        return;
+      }
+
+      navigator.geolocation.watchPosition(addReading, showError, {
+        enableHighAccuracy: true, // use GPS, not just Wi-Fi
+        maximumAge: 0,            // never reuse an old reading
+        timeout: 20000,           // give up on a reading after 20 seconds
+      });
+
+      statusEl.textContent = "Waiting for the first reading…";
+      startBtn.disabled = true; // one watcher only, so readings aren't doubled
+    });
+
+    // Ask the browser to keep the screen on (Screen Wake Lock, FR-66) and show whether it worked
+    async function keepScreenOn() {
+      if (!("wakeLock" in navigator)) {
+        statusEl.textContent = "This browser cannot keep the screen on.";
+        return;
+      }
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        wakeBtn.textContent = "Screen will stay on ✓";
+        wakeLock.addEventListener("release", () => {
+          wakeBtn.textContent = "Screen lock lost: tap to turn on again";
+        });
+      } catch (error) {
+        statusEl.textContent = "Could not keep screen on: " + error.message;
+      }
+    }
+
+    wakeBtn.addEventListener("click", keepScreenOn);
+
+    // The browser drops the lock when you leave the page; take it back when you return
+    document.addEventListener("visibilitychange", () => {
+      if (wakeLock !== null && document.visibilityState === "visible") {
+        keepScreenOn();
+      }
+    });
+  </script>
+</body>
+</html>
