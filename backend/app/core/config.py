@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     app_name: str = "ALU SmartBus API"
     database_url: str
+    secret_key: str
+    access_token_minutes: int = 720  # 12 hours: a school day without signing in again
 
 
 @lru_cache
