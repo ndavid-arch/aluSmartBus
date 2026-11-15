@@ -35,14 +35,36 @@ def client(db):
 
 
 @pytest.fixture
-def student(db):
+def make_user(db):
+    """Create a user with the given role and the test password."""
+
+    def _make_user(role: Role, email: str) -> User:
+        user = User(
+            full_name=f"Test {role.value}",
+            email=email,
+            password_hash=hash_password(TEST_PASSWORD),
+            role=role,
+        )
+        db.add(user)
+        db.commit()
+        return user
+
+    return _make_user
+
+
+@pytest.fixture
+def student(make_user):
     """A student account with a known password."""
-    user = User(
-        full_name="Test Student",
-        email="student@alustudent.com",
-        password_hash=hash_password(TEST_PASSWORD),
-        role=Role.STUDENT,
-    )
-    db.add(user)
-    db.commit()
-    return user
+    return make_user(Role.STUDENT, "student@alustudent.com")
+
+
+@pytest.fixture
+def driver(make_user):
+    """A driver account with a known password."""
+    return make_user(Role.DRIVER, "driver@alueducation.com")
+
+
+@pytest.fixture
+def admin(make_user):
+    """An administrator account with a known password."""
+    return make_user(Role.ADMIN, "admin@alueducation.com")

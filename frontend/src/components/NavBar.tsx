@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router'
-import { useAuth } from '../auth/AuthContext.ts'
+import { homePathFor, useAuth, type Role } from '../auth/AuthContext.ts'
 
-const LINKS = [
-  { to: '/student', label: 'Student' },
-  { to: '/driver', label: 'Driver' },
-  { to: '/admin', label: 'Admin' },
-]
+const ROLE_LABELS: Record<Role, string> = {
+  student: 'Student',
+  driver: 'Driver',
+  admin: 'Admin',
+}
 
-// Top bar with the app name, a link to each role's page, and sign-out when signed in
+// Top bar: the app name, a link to the signed-in user's own page, and sign-out
 function NavBar() {
   const { user, signOut } = useAuth()
 
@@ -15,12 +15,8 @@ function NavBar() {
     <header className="navbar">
       <strong>ALU SmartBus</strong>
       {user && (
-        <nav aria-label="Roles">
-          {LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to}>
-              {link.label}
-            </NavLink>
-          ))}
+        <nav aria-label="Account">
+          <NavLink to={homePathFor(user.role)}>{ROLE_LABELS[user.role]}</NavLink>
           <button type="button" className="link-button" onClick={signOut}>
             Sign out
           </button>
