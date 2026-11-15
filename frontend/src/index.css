@@ -52,3 +52,62 @@ main {
   min-height: 320px;
   border-radius: 12px;
 }
+
+.login {
+  max-width: 360px;
+  margin: 24px auto;
+}
+
+.login form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login label {
+  font-weight: 600;
+}
+
+.login input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #c5ccd8;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.login button {
+  height: 48px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--red);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login button:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  margin: 0;
+  color: var(--red);
+  font-weight: 600;
+}
+
+.muted {
+  color: #5b6474;
+}
+
+.link-button {
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  color: var(--red);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

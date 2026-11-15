@@ -5,6 +5,7 @@ React web app for ALU SmartBus: the student, driver and administrator screens, w
 ## Run it locally
 
 Needs Node.js 20 or newer.
+The app talks to the backend through `/api`, which the dev server forwards to `http://localhost:8000`, so start the backend too (see `backend/README.md`).
 
 ```bash
 cd frontend
