@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import decode_access_token
 from app.db import get_db
-from app.models import User
+from app.models import Role, User
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -40,3 +40,23 @@ def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def require_role(*allowed: Role):
+    """Make a check that lets only the given roles through; anyone else gets 403 Forbidden."""
+
+    def check_role(user: CurrentUser) -> User:
+        """Refuse a signed-in user whose role is not allowed here."""
+        if user.role not in allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="This is not available for your role"
+            )
+        return user
+
+    return check_role
+
+
+# Ready-made checks for routes: write `user: AdminUser` and only administrators get in
+StudentUser = Annotated[User, Depends(require_role(Role.STUDENT))]
+DriverUser = Annotated[User, Depends(require_role(Role.DRIVER))]
+AdminUser = Annotated[User, Depends(require_role(Role.ADMIN))]
