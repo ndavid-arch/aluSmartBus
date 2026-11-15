@@ -30,6 +30,18 @@ alembic upgrade head
 
 # add the Rebero - ALU route and its stops
 python -m app.seed
+
+```
+Add a `SECRET_KEY` to `.env` (it signs sign-in tokens; never commit it):
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+Create an account to sign in with (it asks for the password without showing it):
+
+```bash
+python -m app.create_user --name "Test Student" --email student@alustudent.com --role student
 ```
 
 `python -m app.seed` refuses to run until every stop in `app/seed_data.py` has real coordinates.
