@@ -45,3 +45,10 @@ main {
   background: var(--navy);
   color: #ffffff;
 }
+
+/* Leaflet needs the map box to have a height, or the map is invisible */
+.route-map {
+  height: 70vh;
+  min-height: 320px;
+  border-radius: 12px;
+}
