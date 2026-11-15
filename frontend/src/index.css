@@ -1,0 +1,54 @@
+:root {
+  --navy: #0f1f3d;
+  --red: #c8102e;
+  --bg: #f5f7fa;
+  --text: #1a1a1a;
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  padding: 16px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #dde2ea;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navbar a {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* NavLink adds the "active" class to the link of the page you are on */
+.navbar a.active {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+/* Leaflet needs the map box to have a height, or the map is invisible */
+.route-map {
+  height: 70vh;
+  min-height: 320px;
+  border-radius: 12px;
+}
