@@ -6,7 +6,7 @@ function NotFoundPage() {
     <section>
       <h1>Page not found</h1>
       <p>
-        <Link to="/student">Go to the student page</Link>
+        <Link to="/">Go to your page</Link>
       </p>
     </section>
   )

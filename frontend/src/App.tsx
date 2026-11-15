@@ -1,25 +1,26 @@
-import { Navigate, Route, Routes } from 'react-router'
+import { Route, Routes } from 'react-router'
 import RequireAuth from './auth/RequireAuth.tsx'
 import NavBar from './components/NavBar.tsx'
 import AdminPage from './pages/AdminPage.tsx'
 import DriverPage from './pages/DriverPage.tsx'
+import HomeRedirect from './pages/HomeRedirect.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import StudentPage from './pages/StudentPage.tsx'
 
-// The app's pages: sign-in is open to all, the role pages need a signed-in user
+// The app's pages: sign-in is open to all; each role page is only for that role
 function App() {
   return (
     <>
       <NavBar />
       <main>
         <Routes>
-          <Route path="/" element={<Navigate to="/student" replace />} />
+          <Route path="/" element={<HomeRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/student"
             element={
-              <RequireAuth>
+              <RequireAuth role="student">
                 <StudentPage />
               </RequireAuth>
             }
@@ -27,7 +28,7 @@ function App() {
           <Route
             path="/driver"
             element={
-              <RequireAuth>
+              <RequireAuth role="driver">
                 <DriverPage />
               </RequireAuth>
             }
@@ -35,7 +36,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <RequireAuth>
+              <RequireAuth role="admin">
                 <AdminPage />
               </RequireAuth>
             }
