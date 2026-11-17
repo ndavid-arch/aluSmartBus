@@ -12,10 +12,14 @@ from app.schemas.drivers import DriverCreate, DriverCreated, DriverOut
 
 router = APIRouter(prefix="/admin/drivers", tags=["drivers"])
 
+# Letters and digits that can't be confused when read aloud or typed (no 0/O/o, 1/l/I)
+PASSWORD_CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
+PASSWORD_LENGTH = 12
+
 
 def make_temporary_password() -> str:
-    """A random 12-character password the admin passes on to the driver."""
-    return secrets.token_urlsafe(9)
+    """A random 12-character password that is easy to read out to the driver."""
+    return "".join(secrets.choice(PASSWORD_CHARACTERS) for _ in range(PASSWORD_LENGTH))
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

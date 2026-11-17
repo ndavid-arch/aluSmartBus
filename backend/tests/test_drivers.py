@@ -1,5 +1,6 @@
 """Tests for administrators creating driver accounts (issue #12)."""
 
+from app.routers.drivers import make_temporary_password
 from tests.conftest import auth_headers
 
 NEW_DRIVER = {
@@ -57,3 +58,11 @@ def test_admin_sees_only_drivers_in_the_list(client, admin, student, driver):
     assert response.status_code == 200
     assert [d["email"] for d in response.json()] == [driver.email]
     assert "password_hash" not in response.json()[0]
+
+
+def test_temporary_passwords_have_no_look_alike_characters():
+    """Admins read the password out to drivers, so 0/O/o and 1/l/I must never appear."""
+    for _ in range(100):
+        password = make_temporary_password()
+        assert len(password) == 12
+        assert not set(password) & set("0Oo1lI")
