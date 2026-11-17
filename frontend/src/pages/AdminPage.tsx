@@ -1,9 +1,59 @@
-// The administrator area of the app (placeholder until its features are built)
+import { useEffect, useState } from 'react'
+import { ApiError } from '../api/client'
+import { listDrivers, type CreatedDriver, type Driver } from '../api/drivers'
+import { useAuth } from '../auth/AuthContext'
+import AddDriverForm from '../components/AddDriverForm'
+import DriverList from '../components/DriverList'
+
+// The administrator area: for now, managing driver accounts (issue #12)
 function AdminPage() {
+  const { token } = useAuth()
+  const [drivers, setDrivers] = useState<Driver[]>([])
+  const [loadError, setLoadError] = useState('')
+  const [justCreated, setJustCreated] = useState<CreatedDriver | null>(null)
+
+  // Load the driver list once when the page opens
+  useEffect(() => {
+    if (!token) return
+    listDrivers(token)
+      .then(setDrivers)
+      .catch((err) =>
+        setLoadError(err instanceof ApiError ? err.message : 'Could not load drivers.'),
+      )
+  }, [token])
+
+  // Show the new driver's password once and add them to the list in name order
+  function handleCreated(driver: CreatedDriver) {
+    setJustCreated(driver)
+    setDrivers((current) =>
+      [...current, driver].sort((a, b) => a.full_name.localeCompare(b.full_name)),
+    )
+  }
+
+  if (!token) return null
+
   return (
-    <section>
+    <section className="admin">
       <h1>Administrator</h1>
-      <p>Manage buses, drivers and reports.</p>
+
+      {justCreated && (
+        <div className="panel notice" role="status">
+          <p>
+            <strong>{justCreated.full_name}</strong> can now sign in with{' '}
+            <strong>{justCreated.email}</strong> and this temporary password:
+          </p>
+          <p className="password">{justCreated.temporary_password}</p>
+          <p className="muted">Give it to the driver now. It will not be shown again.</p>
+          <button type="button" className="link-button" onClick={() => setJustCreated(null)}>
+            Done
+          </button>
+        </div>
+      )}
+
+      <AddDriverForm token={token} onCreated={handleCreated} />
+
+      <h2>Drivers</h2>
+      {loadError ? <p className="error">{loadError}</p> : <DriverList drivers={drivers} />}
     </section>
   )
 }

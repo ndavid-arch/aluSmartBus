@@ -111,3 +111,91 @@ main {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Admin page */
+.admin {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.panel {
+  padding: 16px;
+  border: 1px solid #dde2ea;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.form h2 {
+  margin: 0;
+}
+
+.form label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.form input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #c5ccd8;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.form button[type='submit'] {
+  height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--red);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  opacity: 0.6;
+}
+
+.notice {
+  border-color: #2e7d32;
+  background: #eef7ee;
+}
+
+.notice p {
+  margin: 0 0 8px;
+}
+
+.password {
+  font-family: monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  user-select: all;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.table th,
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #dde2ea;
+  text-align: left;
+}
+
+.admin {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+}
