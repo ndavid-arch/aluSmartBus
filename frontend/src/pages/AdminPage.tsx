@@ -3,9 +3,10 @@ import { ApiError } from '../api/client'
 import { listDrivers, type CreatedDriver, type Driver } from '../api/drivers'
 import { useAuth } from '../auth/AuthContext'
 import AddDriverForm from '../components/AddDriverForm'
+import BusesSection from '../components/BusesSection'
 import DriverList from '../components/DriverList'
 
-// The administrator area: for now, managing driver accounts (issue #12)
+// The administrator area: driver accounts (#12) and buses (#13)
 function AdminPage() {
   const { token } = useAuth()
   const [drivers, setDrivers] = useState<Driver[]>([])
@@ -54,6 +55,7 @@ function AdminPage() {
 
       <h2>Drivers</h2>
       {loadError ? <p className="error">{loadError}</p> : <DriverList drivers={drivers} />}
+      <BusesSection token={token} />
     </section>
   )
 }
