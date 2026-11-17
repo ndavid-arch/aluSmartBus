@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from app.core.security import hash_password
+from app.core.security import create_access_token, hash_password
 from app.db import Base, get_db
 from app.main import app
 from app.models import Role, User
@@ -68,3 +68,8 @@ def driver(make_user):
 def admin(make_user):
     """An administrator account with a known password."""
     return make_user(Role.ADMIN, "admin@alueducation.com")
+
+
+def auth_headers(user: User) -> dict[str, str]:
+    """Request headers for a signed-in user, for calling protected endpoints in tests."""
+    return {"Authorization": f"Bearer {create_access_token(str(user.id), user.role.value)}"}

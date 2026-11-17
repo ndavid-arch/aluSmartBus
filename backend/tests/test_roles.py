@@ -5,8 +5,8 @@ from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.deps import AdminUser, DriverUser, StudentUser
-from app.core.security import create_access_token
 from app.db import get_db
+from tests.conftest import auth_headers
 
 # Small routes that exist only in these tests, one per role
 router = APIRouter()
@@ -39,11 +39,6 @@ def role_client(db):
     return TestClient(app)
 
 
-def as_user(user) -> dict[str, str]:
-    """Request headers for a signed-in user."""
-    return {"Authorization": f"Bearer {create_access_token(str(user.id), user.role.value)}"}
-
-
 @pytest.mark.parametrize(
     ("path", "allowed_role"),
     [("/student-only", "student"), ("/driver-only", "driver"), ("/admin-only", "admin")],
@@ -53,14 +48,14 @@ def test_each_role_gets_only_its_own_routes(
 ):
     """The matching role gets 200; every other role gets 403."""
     for user in (student, driver, admin):
-        response = role_client.get(path, headers=as_user(user))
+        response = role_client.get(path, headers=auth_headers(user))
         expected = 200 if user.role.value == allowed_role else 403
         assert response.status_code == expected, f"{user.role.value} on {path}"
 
 
 def test_student_cannot_use_admin_routes(role_client, student):
     """A student calling an admin route is refused with 403."""
-    response = role_client.get("/admin-only", headers=as_user(student))
+    response = role_client.get("/admin-only", headers=auth_headers(student))
     assert response.status_code == 403
     assert response.json()["detail"] == "This is not available for your role"
 
