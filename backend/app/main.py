@@ -2,9 +2,10 @@
 
 from fastapi import FastAPI
 
-from app.routers import auth, drivers, health
+from app.routers import auth, buses, drivers, health
 
 app = FastAPI(title="ALU SmartBus API")
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(drivers.router)
+app.include_router(buses.router)

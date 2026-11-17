@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { ApiError } from '../api/client'
 import { createDriver, type CreatedDriver } from '../api/drivers'
 
@@ -16,7 +16,7 @@ function AddDriverForm({ token, onCreated }: Props) {
   const [saving, setSaving] = useState(false)
 
   // Send the details, then clear the form so the next driver can be added
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
     setSaving(true)

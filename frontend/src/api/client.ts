@@ -11,6 +11,16 @@ export class ApiError extends Error {
   }
 }
 
+// Turn the backend's error into one sentence a person can read
+function errorMessage(detail: unknown): string {
+  if (typeof detail === 'string') return detail
+  // A 422 from FastAPI lists what was wrong; show the first problem without Pydantic's prefix
+  if (Array.isArray(detail) && typeof detail[0]?.msg === 'string') {
+    return detail[0].msg.replace(/^Value error, /, '')
+  }
+  return 'Something went wrong.'
+}
+
 // Call the backend and return its JSON; adds the sign-in token when one is given
 export async function apiFetch<T>(
   path: string,
@@ -30,8 +40,7 @@ export async function apiFetch<T>(
 
   const body = await response.json().catch(() => ({}))
   if (!response.ok) {
-    const message = typeof body.detail === 'string' ? body.detail : 'Something went wrong.'
-    throw new ApiError(response.status, message)
+    throw new ApiError(response.status, errorMessage(body.detail))
   }
   return body as T
 }
