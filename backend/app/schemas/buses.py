@@ -35,13 +35,34 @@ class BusUpdate(BaseModel):
     capacity: Capacity
 
 
-class BusOut(BaseModel):
-    """A bus as the admin screens show it, including its QR code value."""
+class AvailabilityUpdate(BaseModel):
+    """A new status for a bus, with an optional reason when it is not running."""
+
+    availability: Availability
+    reason: str | None = Field(default=None, max_length=200)
+
+    @field_validator("reason")
+    @classmethod
+    def tidy_reason(cls, reason: str | None) -> str | None:
+        """Trim the reason, and treat an empty one as no reason at all."""
+        if reason is None:
+            return None
+        return reason.strip() or None
+
+
+class BusStatus(BaseModel):
+    """What anyone may see about a bus: whether it is running and why not."""
 
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     plate_number: str
     capacity: int
-    qr_code: str
     availability: Availability
+    unavailable_reason: str | None
+
+
+class BusOut(BusStatus):
+    """A bus as the admin screens show it, including its QR code value."""
+
+    qr_code: str

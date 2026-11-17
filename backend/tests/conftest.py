@@ -73,3 +73,13 @@ def admin(make_user):
 def auth_headers(user: User) -> dict[str, str]:
     """Request headers for a signed-in user, for calling protected endpoints in tests."""
     return {"Authorization": f"Bearer {create_access_token(str(user.id), user.role.value)}"}
+
+
+# The bus most tests use; the messy spacing checks that plates are tidied
+NEW_BUS = {"plate_number": " rab 123  a ", "capacity": 30}
+
+
+@pytest.fixture
+def bus(client, admin):
+    """A bus registered by the admin, as the API returned it."""
+    return client.post("/admin/buses", json=NEW_BUS, headers=auth_headers(admin)).json()

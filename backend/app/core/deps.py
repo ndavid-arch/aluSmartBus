@@ -60,3 +60,4 @@ def require_role(*allowed: Role):
 StudentUser = Annotated[User, Depends(require_role(Role.STUDENT))]
 DriverUser = Annotated[User, Depends(require_role(Role.DRIVER))]
 AdminUser = Annotated[User, Depends(require_role(Role.ADMIN))]
+StaffUser = Annotated[User, Depends(require_role(Role.ADMIN, Role.DRIVER))]
