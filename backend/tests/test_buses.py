@@ -4,15 +4,7 @@ import uuid
 
 import pytest
 
-from tests.conftest import auth_headers
-
-NEW_BUS = {"plate_number": " rab 123  a ", "capacity": 30}
-
-
-@pytest.fixture
-def bus(client, admin):
-    """A bus registered by the admin, as the API returned it."""
-    return client.post("/admin/buses", json=NEW_BUS, headers=auth_headers(admin)).json()
+from tests.conftest import NEW_BUS, auth_headers
 
 
 def test_admin_registers_a_bus(client, admin):
