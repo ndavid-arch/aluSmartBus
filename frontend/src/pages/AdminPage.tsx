@@ -34,7 +34,7 @@ function AdminPage() {
   if (!token) return null
 
   return (
-    <section className="admin">
+    <section className="page">
       <h1>Administrator</h1>
 
       {justCreated && (

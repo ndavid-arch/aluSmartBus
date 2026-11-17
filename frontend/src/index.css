@@ -112,8 +112,8 @@ main {
   cursor: pointer;
 }
 
-/* Admin page */
-.admin {
+/* Signed-in pages: one centred column */
+.page {
   display: grid;
   gap: 16px;
   max-width: 760px;
@@ -271,4 +271,103 @@ main {
   display: grid;
   justify-items: center;
   gap: 4px;
+}
+
+/* Bus status */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.badge-available {
+  background: #e3f4e5;
+  color: #1e6b2a;
+}
+
+.badge-unavailable {
+  background: #fde7ea;
+  color: var(--red);
+}
+
+.availability {
+  margin-bottom: 12px;
+}
+
+.availability p {
+  margin: 0 0 8px;
+}
+
+.reason {
+  display: grid;
+  gap: 8px;
+}
+
+.reason label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.reason input {
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #c5ccd8;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.small-button {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.small-button.danger {
+  background: var(--red);
+}
+
+.small-button:disabled {
+  opacity: 0.6;
+}
+
+/* Student bus list */
+.bus-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bus-choice.chosen {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 2px var(--navy);
+}
+
+.warning {
+  border-color: var(--red);
+  background: #fdf1f3;
+}
+
+.warning p,
+.notice p {
+  margin: 0;
 }

@@ -1,10 +1,12 @@
 import RouteMap from '../components/RouteMap.tsx'
+import StudentBusList from '../components/StudentBusList'
 
-// The student area: for now, the map of the route
+// The student area: choose a bus (with its status) above the route map
 function StudentPage() {
   return (
-    <section>
-      <h1>Student</h1>
+    <section className="page">
+      <h1>Choose your bus</h1>
+      <StudentBusList />
       <RouteMap />
     </section>
   )

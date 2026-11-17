@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ApiError } from '../api/client'
-import { listBuses, type Bus } from '../api/buses'
+import { listBuses, type Bus, type BusStatus } from '../api/buses'
 import BusList from './BusList'
 import RegisterBusForm from './RegisterBusForm'
 
@@ -30,9 +30,11 @@ function BusesSection({ token }: Props) {
     setBuses((current) => byPlate([...current, bus]))
   }
 
-  // Swap in the updated copy of a bus after its capacity changes
-  function handleChanged(updated: Bus) {
-    setBuses((current) => current.map((bus) => (bus.id === updated.id ? updated : bus)))
+  // Merge in what changed (capacity or status); the QR code the admin sees is kept
+  function handleChanged(updated: BusStatus) {
+    setBuses((current) =>
+      current.map((bus) => (bus.id === updated.id ? { ...bus, ...updated } : bus)),
+    )
   }
 
   return (
