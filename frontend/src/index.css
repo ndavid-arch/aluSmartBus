@@ -433,3 +433,63 @@ main {
   color: #5b6475;
   font-size: 0.9rem;
 }
+
+/* Guest view */
+.guest-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+/* The "Sign in to get more" box; padding sits on the inner box so outside clicks reach the dialog */
+.prompt {
+  width: min(400px, calc(100% - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+}
+
+.prompt::backdrop {
+  background: rgb(15 31 61 / 55%);
+}
+
+.prompt-body {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.prompt-body h2,
+.prompt-body p {
+  margin: 0;
+}
+
+.prompt-body a {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.prompt-body a.button {
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--red);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.prompt-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  color: var(--navy);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
