@@ -371,3 +371,49 @@ main {
 .notice p {
   margin: 0;
 }
+
+/* Journeys */
+.journey-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+
+.form select {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #c5ccd8;
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+}
+
+.directions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.directions legend {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.form .choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+}

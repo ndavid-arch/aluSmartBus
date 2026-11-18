@@ -1,0 +1,33 @@
+import { apiFetch } from './client'
+
+export type Direction = 'rebero_to_alu' | 'alu_to_rebero'
+
+// The words people see for each direction
+export const DIRECTION_LABELS: Record<Direction, string> = {
+  rebero_to_alu: 'Rebero → ALU',
+  alu_to_rebero: 'ALU → Rebero',
+}
+
+// A journey as the backend returns it, with its bus and driver
+export type Journey = {
+  id: string
+  direction: Direction
+  status: 'active' | 'completed'
+  started_at: string
+  bus: { id: string; plate_number: string }
+  driver: { id: string; full_name: string }
+}
+
+// Start a journey on a bus in one direction; the driver is whoever is signed in
+export function startJourney(busId: string, direction: Direction, token: string): Promise<Journey> {
+  return apiFetch<Journey>(
+    '/journeys',
+    { method: 'POST', body: JSON.stringify({ bus_id: busId, direction }) },
+    token,
+  )
+}
+
+// Every journey on the road right now (drivers and admins)
+export function listActiveJourneys(token: string): Promise<Journey[]> {
+  return apiFetch<Journey[]>('/journeys/active', {}, token)
+}
