@@ -8,6 +8,7 @@ from pwdlib import PasswordHash
 from app.core.config import get_settings
 
 ALGORITHM = "HS256"
+MIN_PASSWORD_LENGTH = 8  # the same rule for sign-up and for accounts made in the terminal
 _password_hasher = PasswordHash.recommended()  # argon2, as planned in the SRS
 
 

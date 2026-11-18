@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router'
+import { useState, type SubmitEvent } from 'react'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { ApiError } from '../api/client.ts'
 import { homePathFor, useAuth } from '../auth/AuthContext.ts'
 
@@ -14,7 +14,7 @@ function LoginPage() {
 
   if (user !== null) return <Navigate to={homePathFor(user.role)} replace />
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
     setSubmitting(true)
@@ -59,6 +59,9 @@ function LoginPage() {
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+      <p className="auth-switch">
+        New student? <Link to="/signup">Create an account</Link>
+      </p>
     </section>
   )
 }

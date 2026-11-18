@@ -9,11 +9,9 @@ import getpass
 
 from sqlalchemy import select
 
-from app.core.security import hash_password
+from app.core.security import MIN_PASSWORD_LENGTH, hash_password
 from app.db import SessionLocal
 from app.models import Role, User
-
-MIN_PASSWORD_LENGTH = 8
 
 
 def parse_args() -> argparse.Namespace:

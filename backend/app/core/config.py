@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str
     access_token_minutes: int = 720  # 12 hours: a school day without signing in again
+    student_email_domain: str = "alustudent.com"  # only these emails may sign up as students
 
 
 @lru_cache

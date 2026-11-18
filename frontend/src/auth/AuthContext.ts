@@ -14,6 +14,7 @@ export type AuthState = {
   token: string | null
   checking: boolean // true while a saved token is being checked on page load
   signIn: (email: string, password: string) => Promise<User>
+  signUp: (fullName: string, email: string, password: string) => Promise<User>
   signOut: () => void
 }
 

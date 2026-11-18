@@ -6,9 +6,10 @@ import DriverPage from './pages/DriverPage.tsx'
 import HomeRedirect from './pages/HomeRedirect.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
+import SignUpPage from './pages/SignUpPage.tsx'
 import StudentPage from './pages/StudentPage.tsx'
 
-// The app's pages: sign-in is open to all; each role page is only for that role
+// The app's pages: sign-in and sign-up are open to all; each role page is only for that role
 function App() {
   return (
     <>
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route
             path="/student"
             element={
