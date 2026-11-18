@@ -48,8 +48,8 @@ def test_seed_refuses_impossible_coordinates(session):
         seed_route(session, "Test route", [("Nowhere", 120.0, 30.0)])
 
 
-def test_real_route_lists_twelve_unique_stops():
-    """The SRS route has 12 designated stops, each named once."""
+def test_real_route_lists_thirteen_unique_stops():
+    """The route has 13 designated stops (the SRS's 12 plus Kwa Kaboyi), each named once."""
     names = [name for name, _, _ in STOPS]
-    assert len(names) == 12
-    assert len(set(names)) == 12
+    assert len(names) == 13
+    assert len(set(names)) == 13
