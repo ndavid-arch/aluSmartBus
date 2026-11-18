@@ -10,6 +10,8 @@ from app.core.security import create_access_token, hash_password
 from app.db import Base, get_db
 from app.main import app
 from app.models import Role, User
+from app.seed import seed_route
+from app.seed_data import ROUTE_NAME, STOPS
 
 TEST_PASSWORD = "bus-to-campus"
 
@@ -83,3 +85,9 @@ NEW_BUS = {"plate_number": " rab 123  a ", "capacity": 30}
 def bus(client, admin):
     """A bus registered by the admin, as the API returned it."""
     return client.post("/admin/buses", json=NEW_BUS, headers=auth_headers(admin)).json()
+
+
+@pytest.fixture
+def route(db):
+    """The real Rebero - ALU route and its stops, seeded into the test database."""
+    return seed_route(db, ROUTE_NAME, STOPS)
