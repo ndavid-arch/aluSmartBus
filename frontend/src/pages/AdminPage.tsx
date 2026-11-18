@@ -5,13 +5,16 @@ import { useAuth } from '../auth/AuthContext'
 import AddDriverForm from '../components/AddDriverForm'
 import BusesSection from '../components/BusesSection'
 import DriverList from '../components/DriverList'
+import JourneyList from '../components/JourneyList'
+import { useActiveJourneys } from '../hooks/useActiveJourneys'
 
-// The administrator area: driver accounts (#12) and buses (#13)
+// The administrator area: journeys on the road (#15), driver accounts (#12) and buses (#13)
 function AdminPage() {
   const { token } = useAuth()
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [loadError, setLoadError] = useState('')
   const [justCreated, setJustCreated] = useState<CreatedDriver | null>(null)
+  const { journeys, loadError: journeysError } = useActiveJourneys(token ?? '')
 
   // Load the driver list once when the page opens
   useEffect(() => {
@@ -37,6 +40,9 @@ function AdminPage() {
     <section className="page">
       <h1>Administrator</h1>
 
+      <h2>On the road now</h2>
+      <JourneyList journeys={journeys} loadError={journeysError} />
+
       {justCreated && (
         <div className="panel notice" role="status">
           <p>
@@ -55,6 +61,7 @@ function AdminPage() {
 
       <h2>Drivers</h2>
       {loadError ? <p className="error">{loadError}</p> : <DriverList drivers={drivers} />}
+
       <BusesSection token={token} />
     </section>
   )

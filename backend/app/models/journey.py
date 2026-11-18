@@ -2,18 +2,38 @@
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base, IdMixin, set_to_now
 from app.models.enums import ArrivalStatus, Direction, JourneyStatus
+
+if TYPE_CHECKING:
+    from app.models.bus import Bus
+    from app.models.user import User
+
+# Enum columns store the member's NAME, so an active journey has status 'ACTIVE' in the table
+ONLY_ACTIVE = text("status = 'ACTIVE'")
 
 
 class Journey(IdMixin, Base):
     """One trip of one bus, driven by one driver, along one route in one direction."""
 
     __tablename__ = "journeys"
+
+    # The database itself refuses a second active journey for one bus (FR-16),
+    # even if two drivers press Start at the same moment
+    __table_args__ = (
+        Index(
+            "one_active_journey_per_bus",
+            "bus_id",
+            unique=True,
+            postgresql_where=ONLY_ACTIVE,
+            sqlite_where=ONLY_ACTIVE,
+        ),
+    )
 
     bus_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("buses.id"))
     driver_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
@@ -24,6 +44,8 @@ class Journey(IdMixin, Base):
     )
     started_at: Mapped[datetime] = set_to_now()
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    bus: Mapped["Bus"] = relationship()
+    driver: Mapped["User"] = relationship()
 
     location_updates: Mapped[list["LocationUpdate"]] = relationship(
         back_populates="journey", cascade="all, delete-orphan"
