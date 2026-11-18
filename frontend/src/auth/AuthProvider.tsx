@@ -46,21 +46,41 @@ function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setChecking(false))
   }, [token, user, signOut])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { access_token } = await apiFetch<LoginResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
-    const me = await apiFetch<User>('/auth/me', {}, access_token)
-    saveToken(access_token)
-    setToken(access_token)
+  // After signing in or up: find out who the token belongs to, then remember both
+  const startSession = useCallback(async (accessToken: string) => {
+    const me = await apiFetch<User>('/auth/me', {}, accessToken)
+    saveToken(accessToken)
+    setToken(accessToken)
     setUser(me)
     return me
   }, [])
 
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const { access_token } = await apiFetch<LoginResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+      return startSession(access_token)
+    },
+    [startSession],
+  )
+
+  // Create a student account; the backend signs the new student in straight away
+  const signUp = useCallback(
+    async (fullName: string, email: string, password: string) => {
+      const { access_token } = await apiFetch<LoginResponse>('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ full_name: fullName, email, password }),
+      })
+      return startSession(access_token)
+    },
+    [startSession],
+  )
+
   const value = useMemo(
-    () => ({ user, token, checking, signIn, signOut }),
-    [user, token, checking, signIn, signOut],
+    () => ({ user, token, checking, signIn, signUp, signOut }),
+    [user, token, checking, signIn, signUp, signOut],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
