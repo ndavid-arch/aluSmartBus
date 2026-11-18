@@ -62,6 +62,9 @@ function LoginPage() {
       <p className="auth-switch">
         New student? <Link to="/signup">Create an account</Link>
       </p>
+      <p className="auth-switch">
+        Just checking the bus? <Link to="/guest">Continue as a guest</Link>
+      </p>
     </section>
   )
 }

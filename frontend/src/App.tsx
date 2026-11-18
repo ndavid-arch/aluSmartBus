@@ -3,13 +3,14 @@ import RequireAuth from './auth/RequireAuth.tsx'
 import NavBar from './components/NavBar.tsx'
 import AdminPage from './pages/AdminPage.tsx'
 import DriverPage from './pages/DriverPage.tsx'
+import GuestPage from './pages/GuestPage.tsx'
 import HomeRedirect from './pages/HomeRedirect.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import SignUpPage from './pages/SignUpPage.tsx'
 import StudentPage from './pages/StudentPage.tsx'
 
-// The app's pages: sign-in and sign-up are open to all; each role page is only for that role
+// The app's pages: the guest view, sign-in and sign-up are open to all; each role page is only for that role
 function App() {
   return (
     <>
@@ -17,6 +18,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<HomeRedirect />} />
+          <Route path="/guest" element={<GuestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route
