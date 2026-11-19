@@ -31,3 +31,15 @@ export function startJourney(busId: string, direction: Direction, token: string)
 export function listActiveJourneys(token: string): Promise<Journey[]> {
   return apiFetch<Journey[]>('/journeys/active', {}, token)
 }
+
+// One GPS reading from the driver's phone
+export type Reading = { latitude: number; longitude: number; accuracy: number }
+
+// Send the bus position for the driver's active journey (#16)
+export function sendLocation(journeyId: string, reading: Reading, token: string): Promise<void> {
+  return apiFetch<void>(
+    `/journeys/${journeyId}/locations`,
+    { method: 'POST', body: JSON.stringify(reading) },
+    token,
+  )
+}

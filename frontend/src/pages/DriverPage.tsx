@@ -2,11 +2,12 @@ import { DIRECTION_LABELS } from '../api/journeys'
 import { useAuth } from '../auth/AuthContext'
 import AvailabilityEditor from '../components/AvailabilityEditor'
 import JourneyList from '../components/JourneyList'
+import LocationSharing from '../components/LocationSharing'
 import StartJourneyForm from '../components/StartJourneyForm'
 import { useActiveJourneys } from '../hooks/useActiveJourneys'
 import { useBusStatus } from '../hooks/useBusStatus'
 
-// The driver area: start a journey (#15), see who is on the road, mark buses Available (#14)
+// The driver area: start a journey (#15) and share its location (#16), see who is on the road, mark buses Available (#14)
 function DriverPage() {
   const { user, token } = useAuth()
   const { buses, loadError, replaceBus } = useBusStatus()
@@ -26,12 +27,15 @@ function DriverPage() {
       <h1>Driver</h1>
 
       {myJourney ? (
-        <div className="panel notice" role="status">
-          <p>
-            You are driving <strong>{myJourney.bus.plate_number}</strong>,{' '}
-            {DIRECTION_LABELS[myJourney.direction]}. Keep this page open.
-          </p>
-        </div>
+        <>
+          <div className="panel notice">
+            <p>
+              You are driving <strong>{myJourney.bus.plate_number}</strong>,{' '}
+              {DIRECTION_LABELS[myJourney.direction]}. Keep this page open.
+            </p>
+          </div>
+          <LocationSharing journeyId={myJourney.id} token={token} />
+        </>
       ) : (
         <StartJourneyForm buses={startableBuses} token={token} onStarted={reload} />
       )}
