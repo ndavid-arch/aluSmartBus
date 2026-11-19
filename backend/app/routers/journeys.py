@@ -1,5 +1,7 @@
 """Drivers start journeys; drivers and admins see which buses are on the road (#15)."""
 
+import uuid
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.exc import IntegrityError
@@ -25,6 +27,14 @@ def get_route_or_503(db: Session) -> Route:
             detail="The route is not set up yet. Run the seed script.",
         )
     return route
+
+
+def get_journey_or_404(db: Session, journey_id: uuid.UUID) -> Journey:
+    """Find a journey by its ID, or answer 404 if there is no such journey."""
+    journey = db.get(Journey, journey_id)
+    if journey is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Journey not found")
+    return journey
 
 
 def has_active_journey(db: Session, condition: ColumnElement[bool]) -> bool:

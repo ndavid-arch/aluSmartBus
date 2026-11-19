@@ -493,3 +493,12 @@ main {
   font-size: 1.6rem;
   cursor: pointer;
 }
+
+/* Location sharing on the driver page */
+.sharing p {
+  margin: 0;
+}
+
+.sharing .pause-note {
+  margin-top: 8px;
+}
