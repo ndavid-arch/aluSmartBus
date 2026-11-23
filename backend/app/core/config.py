@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     access_token_minutes: int = 720  # 12 hours: a school day without signing in again
     student_email_domain: str = "alustudent.com"  # only these emails may sign up as students
     location_accuracy_limit_m: float = 30  # readings less precise than this are not saved (#9)
+    average_bus_speed_kmh: float = 20  # for ETAs; refine with real journey data after the pilot
+    off_route_distance_m: float = 400  # farther than this from the route: "Not on the route yet"
 
 
 @lru_cache

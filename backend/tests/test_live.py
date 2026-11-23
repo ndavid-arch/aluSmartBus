@@ -49,6 +49,15 @@ def test_live_buses_show_each_bus_at_its_latest_position(client, driver, journey
     assert bus["direction"] == "rebero_to_alu"
 
 
+def test_live_buses_include_the_next_stop_and_eta(client, driver, journey):
+    """On the way from Rebero, the next stop is Rujugiro, with a whole-minute ETA (#18)."""
+    send(client, driver, journey, MOVED_ON)
+    [bus] = client.get("/live/buses").json()
+    assert bus["next_stop"] == "Rujugiro"
+    assert isinstance(bus["eta_minutes"], int)
+    assert bus["eta_minutes"] >= 0
+
+
 def test_a_journey_without_a_position_yet_is_not_shown(client, journey):
     """Nothing is drawn until the driver's phone has sent its first reading."""
     assert client.get("/live/buses").json() == []
@@ -60,6 +69,8 @@ def test_the_bus_is_shown_wherever_it_is(client, driver, journey):
     send(client, driver, journey, parking)
     [bus] = client.get("/live/buses").json()
     assert (bus["latitude"], bus["longitude"]) == (parking["latitude"], parking["longitude"])
+    assert bus["next_stop"] is None  # "Not on the route yet" (#18)
+    assert bus["eta_minutes"] is None
 
 
 def test_open_maps_receive_each_new_position_straight_away(client, driver, journey):
@@ -70,3 +81,4 @@ def test_open_maps_receive_each_new_position_straight_away(client, driver, journ
     assert message["plate_number"] == "RAB 123 A"
     assert message["latitude"] == MOVED_ON["latitude"]
     assert message["journey_id"] == journey["id"]
+    assert message["next_stop"] == "Rujugiro"  # each update carries a fresh ETA (#18)
