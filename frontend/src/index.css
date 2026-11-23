@@ -513,3 +513,9 @@ main {
   margin: 0;
   font-size: 0.9rem;
 }
+
+/* Next stop and ETA under the live map */
+.next-stop {
+  color: var(--navy);
+  font-weight: 600;
+}

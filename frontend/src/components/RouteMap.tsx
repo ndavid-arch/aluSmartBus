@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import { DIRECTION_LABELS } from '../api/journeys'
 import type { Stop } from '../api/live'
+import LiveBusSummary from './LiveBusSummary'
 import { useLiveBuses } from '../hooks/useLiveBuses'
 import { useRoute } from '../hooks/useRoute'
 
@@ -73,6 +74,7 @@ function RouteMap() {
         {connected ? '● Live' : 'Connecting to live updates…'}
         {connected && buses.length === 0 && ' · No bus is on the road right now'}
       </p>
+      <LiveBusSummary buses={buses} />
     </div>
   )
 }
