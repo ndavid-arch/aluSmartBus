@@ -1,19 +1,79 @@
 import 'leaflet/dist/leaflet.css'
-import { MapContainer, TileLayer } from 'react-leaflet'
+import { useEffect } from 'react'
+import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
+import { DIRECTION_LABELS } from '../api/journeys'
+import type { Stop } from '../api/live'
+import { useLiveBuses } from '../hooks/useLiveBuses'
+import { useRoute } from '../hooks/useRoute'
 
-// Roughly the middle of the Rebero - ALU route; replaced by the real stops once they are seeded
+// Roughly the middle of the Rebero - ALU route, shown until the stops have loaded
 const ROUTE_CENTRE: [number, number] = [-1.955, 30.105]
 const STARTING_ZOOM = 13
 
-// Map of the Rebero - ALU area using free OpenStreetMap tiles
+// Colours from the app's palette (Leaflet draws with its own styles, not our CSS)
+const NAVY = '#0f1f3d'
+const RED = '#c8102e'
+
+// Once the stops arrive, zoom the map so the whole route fits on screen
+function FitToRoute({ stops }: { stops: Stop[] }) {
+  const map = useMap()
+  useEffect(() => {
+    if (stops.length > 0) {
+      map.fitBounds(
+        stops.map((stop) => [stop.latitude, stop.longitude]),
+        { padding: [24, 24] },
+      )
+    }
+  }, [map, stops])
+  return null
+}
+
+// The live map: the route line, its stops, and every bus on the road (FR-09, FR-22, FR-23)
 function RouteMap() {
+  const route = useRoute()
+  const { buses, connected } = useLiveBuses()
+  const stops = route?.stops ?? []
+
   return (
-    <MapContainer center={ROUTE_CENTRE} zoom={STARTING_ZOOM} className="route-map">
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-    </MapContainer>
+    <div className="live-map">
+      <MapContainer center={ROUTE_CENTRE} zoom={STARTING_ZOOM} className="route-map">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <FitToRoute stops={stops} />
+        <Polyline
+          positions={stops.map((stop) => [stop.latitude, stop.longitude])}
+          pathOptions={{ color: NAVY, weight: 4, opacity: 0.7 }}
+        />
+        {stops.map((stop) => (
+          <CircleMarker
+            key={stop.sequence}
+            center={[stop.latitude, stop.longitude]}
+            radius={6}
+            pathOptions={{ color: NAVY, weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+          >
+            <Tooltip>{stop.name}</Tooltip>
+          </CircleMarker>
+        ))}
+        {buses.map((bus) => (
+          <CircleMarker
+            key={bus.journey_id}
+            center={[bus.latitude, bus.longitude]}
+            radius={11}
+            pathOptions={{ color: '#ffffff', weight: 3, fillColor: RED, fillOpacity: 1 }}
+          >
+            <Tooltip permanent direction="top" offset={[0, -10]}>
+              {bus.plate_number} · {DIRECTION_LABELS[bus.direction]}
+            </Tooltip>
+          </CircleMarker>
+        ))}
+      </MapContainer>
+      <p className="muted live-status">
+        {connected ? '● Live' : 'Connecting to live updates…'}
+        {connected && buses.length === 0 && ' · No bus is on the road right now'}
+      </p>
+    </div>
   )
 }
 
