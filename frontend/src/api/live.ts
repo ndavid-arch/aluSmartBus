@@ -17,6 +17,8 @@ export type LiveBus = {
   longitude: number
   accuracy: number
   recorded_at: string
+  next_stop: string | null // null when the bus is not on the route yet
+  eta_minutes: number | null
 }
 
 // The route and its stops, for drawing the map (no sign-in needed)
