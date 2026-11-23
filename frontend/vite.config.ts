@@ -10,6 +10,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         rewrite: (path) => path.replace(/^\/api/, ''),
+        ws: true, // also pass on the live map's WebSocket connection
       },
     },
   },
