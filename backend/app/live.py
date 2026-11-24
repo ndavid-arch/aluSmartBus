@@ -1,5 +1,6 @@
 """Pushing new bus positions to every open map, the moment they arrive (FR-22)."""
 
+import uuid
 from typing import Any
 
 from fastapi import WebSocket
@@ -31,6 +32,11 @@ class LiveUpdates:
                 await websocket.send_json(message)
             except Exception:  # the phone lost signal or closed the tab without saying goodbye
                 self.disconnect(websocket)
+
+
+def journey_ended_message(journey_id: uuid.UUID) -> dict[str, Any]:
+    """Tells open maps to remove a bus whose journey is over."""
+    return {"type": "journey_ended", "journey_id": str(journey_id)}
 
 
 live_updates = LiveUpdates()

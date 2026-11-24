@@ -1,17 +1,34 @@
+import { useCallback, useState } from 'react'
 import { DIRECTION_LABELS } from '../api/journeys'
 import { useAuth } from '../auth/AuthContext'
 import AvailabilityEditor from '../components/AvailabilityEditor'
+import EndJourneyButton from '../components/EndJourneyButton'
 import JourneyList from '../components/JourneyList'
 import LocationSharing from '../components/LocationSharing'
 import StartJourneyForm from '../components/StartJourneyForm'
 import { useActiveJourneys } from '../hooks/useActiveJourneys'
 import { useBusStatus } from '../hooks/useBusStatus'
 
-// The driver area: start a journey (#15) and share its location (#16), see who is on the road, mark buses Available (#14)
+// The driver area: start (#15), share (#16) and end (#20) a journey; see who is on the road;
+// mark buses Available (#14)
 function DriverPage() {
   const { user, token } = useAuth()
   const { buses, loadError, replaceBus } = useBusStatus()
   const { journeys, loadError: journeysError, reload } = useActiveJourneys(token ?? '')
+  const [justEnded, setJustEnded] = useState(false)
+
+  // However the journey ended (by hand or at the terminal), say so and refresh the lists;
+  // the sharing panel then disappears, which stops the GPS
+  const handleEnded = useCallback(() => {
+    setJustEnded(true)
+    reload()
+  }, [reload])
+
+  // Starting a new journey clears the "journey ended" note
+  const handleStarted = useCallback(() => {
+    setJustEnded(false)
+    reload()
+  }, [reload])
 
   if (!user || !token) return null
 
@@ -28,16 +45,24 @@ function DriverPage() {
 
       {myJourney ? (
         <>
-          <div className="panel notice">
+          <div className="panel notice driving">
             <p>
               You are driving <strong>{myJourney.bus.plate_number}</strong>,{' '}
               {DIRECTION_LABELS[myJourney.direction]}. Keep this page open.
             </p>
+            <EndJourneyButton journeyId={myJourney.id} token={token} onEnded={handleEnded} />
           </div>
-          <LocationSharing journeyId={myJourney.id} token={token} />
+          <LocationSharing journeyId={myJourney.id} token={token} onEnded={handleEnded} />
         </>
       ) : (
-        <StartJourneyForm buses={startableBuses} token={token} onStarted={reload} />
+        <>
+          {justEnded && (
+            <div className="panel notice" role="status">
+              <p>Journey completed. Location sharing has stopped.</p>
+            </div>
+          )}
+          <StartJourneyForm buses={startableBuses} token={token} onStarted={handleStarted} />
+        </>
       )}
 
       <h2>On the road now</h2>

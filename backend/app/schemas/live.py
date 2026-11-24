@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import UTC, datetime
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict
 
@@ -41,6 +41,7 @@ def seconds_since(moment: datetime) -> float:
 class LiveBus(BaseModel):
     """Where one bus on the road is now: the same shape on page load and in live updates."""
 
+    type: Literal["position"] = "position"  # live messages say what they are (see #20)
     journey_id: uuid.UUID
     bus_id: uuid.UUID
     plate_number: str

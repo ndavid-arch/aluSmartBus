@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.config import get_settings
+from app.models import JourneyStatus
 
 
 class LocationIn(BaseModel):
@@ -37,3 +38,9 @@ class LocationOut(BaseModel):
     longitude: float
     accuracy: float
     recorded_at: datetime
+
+
+class LocationSaved(LocationOut):
+    """The saved reading, plus the journey's status: COMPLETED once the bus reaches the terminal."""
+
+    journey_status: JourneyStatus

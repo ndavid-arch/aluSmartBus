@@ -525,3 +525,19 @@ main {
   color: var(--red);
   font-weight: 600;
 }
+
+/* Ending a journey (#20) */
+.driving {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.confirm-end {
+  display: grid;
+  gap: 8px;
+}
+
+.confirm-end p {
+  margin: 0;
+}

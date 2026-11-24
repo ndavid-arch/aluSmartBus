@@ -35,11 +35,23 @@ export function listActiveJourneys(token: string): Promise<Journey[]> {
 // One GPS reading from the driver's phone
 export type Reading = { latitude: number; longitude: number; accuracy: number }
 
-// Send the bus position for the driver's active journey (#16)
-export function sendLocation(journeyId: string, reading: Reading, token: string): Promise<void> {
-  return apiFetch<void>(
+// The backend's reply to a reading: the journey is 'completed' once the bus reaches the terminal
+export type ReadingSaved = { journey_status: Journey['status'] }
+
+// Send the bus position for the driver's active journey (#16, #20)
+export function sendLocation(
+  journeyId: string,
+  reading: Reading,
+  token: string,
+): Promise<ReadingSaved> {
+  return apiFetch<ReadingSaved>(
     `/journeys/${journeyId}/locations`,
     { method: 'POST', body: JSON.stringify(reading) },
     token,
   )
+}
+
+// The driver ends their journey by hand (#20)
+export function endJourney(journeyId: string, token: string): Promise<Journey> {
+  return apiFetch<Journey>(`/journeys/${journeyId}/end`, { method: 'POST' }, token)
 }
