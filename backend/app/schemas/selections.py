@@ -1,6 +1,8 @@
 """What the stop-selection endpoints accept and return."""
 
 import uuid
+from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -31,6 +33,10 @@ class StopSummary(BaseModel):
     name: str
 
 
+# Where a pickup stands: bus not there yet, bus there (board now), boarded, or missed
+WindowState = Literal["waiting", "open", "boarded", "missed"]
+
+
 class SelectionOut(BaseModel):
     """A student's pickup or drop-off stop for one journey."""
 
@@ -39,3 +45,6 @@ class SelectionOut(BaseModel):
     type: SelectionType
     stop: StopSummary
     pickup_status: PickupStatus
+    # Pickups only (None for a drop-off): the boarding window at that stop (#23)
+    window_state: WindowState | None = None
+    window_closes_at: datetime | None = None

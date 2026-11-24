@@ -1,10 +1,12 @@
-"""The driver's phone sends the bus position during an active journey (#16, #20, #22)."""
+"""The driver's phone sends the bus position during an active journey (#16, #20, #22, #23)."""
 
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
 from app.arrivals import record_arrivals
+from app.boarding import expire_missed_pickups
 from app.core.deps import DbSession, DriverUser
 from app.eta import stops_in_travel_order
 from app.geo import distance_m
@@ -59,6 +61,8 @@ def share_location(
     location = LocationUpdate(journey_id=journey.id, **reading.model_dump())
     db.add(location)
     record_arrivals(journey, reading.latitude, reading.longitude, radius_m)
+    db.flush()  # so the new arrivals have their times before the window check below
+    expire_missed_pickups(db, journey, datetime.now(UTC))
     if arrived:
         complete(journey)
     db.commit()

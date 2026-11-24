@@ -1,11 +1,12 @@
 """What the route and live-map endpoints return."""
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict
 
+from app.clock import seconds_since
 from app.eta import journey_progress
 from app.models import Direction, Journey, LocationUpdate
 
@@ -28,13 +29,6 @@ class RouteOut(BaseModel):
 
     name: str
     stops: list[StopOut]
-
-
-def seconds_since(moment: datetime) -> float:
-    """How long ago a moment was, by the server's clock (SQLite gives times without a zone: UTC)."""
-    if moment.tzinfo is None:
-        moment = moment.replace(tzinfo=UTC)
-    return max((datetime.now(UTC) - moment).total_seconds(), 0.0)
 
 
 class LiveBus(BaseModel):

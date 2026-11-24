@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from sqlalchemy import select
 
 from app.core.deps import AdminUser, DbSession
-from app.models import StopArrival
+from app.models import Stop, StopArrival
 from app.routers.journeys import get_journey_or_404
 from app.schemas.arrivals import ArrivalOut
 from app.schemas.settings import SettingsOut, SettingsUpdate
@@ -21,8 +21,10 @@ def list_arrivals(journey_id: uuid.UUID, db: DbSession) -> list[ArrivalOut]:
     journey = get_journey_or_404(db, journey_id)
     arrivals = db.scalars(
         select(StopArrival)
+        .join(Stop)
         .where(StopArrival.journey_id == journey.id)
-        .order_by(StopArrival.arrived_at)
+        # Two arrivals in the same second (possible in tests) fall back to route order
+        .order_by(StopArrival.arrived_at, Stop.sequence)
     )
     return [ArrivalOut.model_validate(arrival) for arrival in arrivals]
 
