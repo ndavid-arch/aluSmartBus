@@ -1,11 +1,13 @@
 """Students choose where the bus picks them up and drops them off (#21)."""
 
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.boarding import expire_missed_pickups, pickup_arrivals, window_closes_at
 from app.core.deps import DbSession, StudentUser
 from app.eta import journey_progress, stops_in_travel_order
 from app.models import Journey, JourneyStatus, PickupStatus, SelectionType, StopSelection, User
@@ -67,6 +69,22 @@ def check_order(
         raise HTTPException(UNPROCESSABLE, detail="Your pickup must come before your drop-off")
 
 
+def selection_out(selection: StopSelection, arrived: dict) -> SelectionOut:
+    """A selection as the student sees it; a pickup also says where its boarding window stands."""
+    out = SelectionOut.model_validate(selection)
+    if selection.type != SelectionType.PICKUP:
+        return out
+    arrived_at = arrived.get(selection.stop_id)
+    closes_at = window_closes_at(arrived_at) if arrived_at is not None else None
+    if selection.pickup_status == PickupStatus.BOARDED:
+        state = "boarded"
+    elif selection.pickup_status == PickupStatus.MISSED:
+        state = "missed"
+    else:
+        state = "waiting" if arrived_at is None else "open"
+    return out.model_copy(update={"window_state": state, "window_closes_at": closes_at})
+
+
 @router.get("/{journey_id}/stops")
 def list_journey_stops(journey_id: uuid.UUID, db: DbSession) -> list[JourneyStop]:
     """The stops of this journey in travel order, marking the ones already passed (FR-10)."""
@@ -77,14 +95,18 @@ def list_journey_stops(journey_id: uuid.UUID, db: DbSession) -> list[JourneyStop
 def list_my_selections(
     journey_id: uuid.UUID, db: DbSession, student: StudentUser
 ) -> list[SelectionOut]:
-    """My chosen pickup and drop-off stops for this journey (FR-12)."""
+    """My chosen pickup and drop-off stops for this journey, with my boarding window (FR-12)."""
     journey = get_journey_or_404(db, journey_id)
+    # Bring missed pickups up to date first, even if the driver's phone has stopped sending
+    if expire_missed_pickups(db, journey, datetime.now(UTC)):
+        db.commit()
     selections = db.scalars(
         select(StopSelection).where(
             StopSelection.journey_id == journey.id, StopSelection.student_id == student.id
         )
     )
-    return [SelectionOut.model_validate(selection) for selection in selections]
+    arrived = pickup_arrivals(journey)
+    return [selection_out(selection, arrived) for selection in selections]
 
 
 @router.put("/{journey_id}/selections/{selection_type}")
@@ -130,4 +152,4 @@ def choose_stop(
         selection.stop_id = choice.stop_id
     db.commit()
     db.refresh(selection)
-    return SelectionOut.model_validate(selection)
+    return selection_out(selection, pickup_arrivals(journey))
