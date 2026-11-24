@@ -20,7 +20,7 @@ function SelectionMessage({ bus }: { bus: BusStatus }) {
   return (
     <div className="panel notice" role="status">
       <p>
-        You chose <strong>{bus.plate_number}</strong>. Live location is coming soon.
+        You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map below.
       </p>
     </div>
   )
