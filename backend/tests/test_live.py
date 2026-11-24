@@ -1,7 +1,11 @@
 """Tests for the route and the live bus positions on the map (issue #17)."""
 
-import pytest
+from datetime import UTC, datetime, timedelta
 
+import pytest
+from sqlalchemy import select
+
+from app.models import LocationUpdate
 from tests.conftest import auth_headers
 
 # Two readings near the start of the route: Rebero, then on the way to Rujugiro
@@ -82,3 +86,20 @@ def test_open_maps_receive_each_new_position_straight_away(client, driver, journ
     assert message["latitude"] == MOVED_ON["latitude"]
     assert message["journey_id"] == journey["id"]
     assert message["next_stop"] == "Rujugiro"  # each update carries a fresh ETA (#18)
+
+
+def test_each_position_says_how_old_it_is(client, driver, journey):
+    """A fresh reading is a few seconds old at most, so the map knows it is live (#19)."""
+    send(client, driver, journey, MOVED_ON)
+    [bus] = client.get("/live/buses").json()
+    assert 0 <= bus["age_seconds"] < 5
+
+
+def test_an_old_position_shows_its_real_age(client, db, driver, journey):
+    """If the phone stopped sending 5 minutes ago, the map is told it is about 300 s old."""
+    send(client, driver, journey, MOVED_ON)
+    reading = db.scalar(select(LocationUpdate))
+    reading.recorded_at = datetime.now(UTC) - timedelta(minutes=5)
+    db.commit()
+    [bus] = client.get("/live/buses").json()
+    assert 295 < bus["age_seconds"] < 310

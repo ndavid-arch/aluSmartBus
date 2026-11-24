@@ -4,7 +4,8 @@ import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from
 import { DIRECTION_LABELS } from '../api/journeys'
 import type { Stop } from '../api/live'
 import LiveBusSummary from './LiveBusSummary'
-import { useLiveBuses } from '../hooks/useLiveBuses'
+import { secondsSinceSeen, STALE_AFTER_SECONDS, useLiveBuses } from '../hooks/useLiveBuses'
+import { useNow } from '../hooks/useNow'
 import { useRoute } from '../hooks/useRoute'
 
 // Roughly the middle of the Rebero - ALU route, shown until the stops have loaded
@@ -14,6 +15,7 @@ const STARTING_ZOOM = 13
 // Colours from the app's palette (Leaflet draws with its own styles, not our CSS)
 const NAVY = '#0f1f3d'
 const RED = '#c8102e'
+const GREY = '#8a93a3' // a bus whose position is no longer live
 
 // Once the stops arrive, zoom the map so the whole route fits on screen
 function FitToRoute({ stops }: { stops: Stop[] }) {
@@ -33,6 +35,7 @@ function FitToRoute({ stops }: { stops: Stop[] }) {
 function RouteMap() {
   const route = useRoute()
   const { buses, connected } = useLiveBuses()
+  const now = useNow()
   const stops = route?.stops ?? []
 
   return (
@@ -57,24 +60,33 @@ function RouteMap() {
             <Tooltip>{stop.name}</Tooltip>
           </CircleMarker>
         ))}
-        {buses.map((bus) => (
-          <CircleMarker
-            key={bus.journey_id}
-            center={[bus.latitude, bus.longitude]}
-            radius={11}
-            pathOptions={{ color: '#ffffff', weight: 3, fillColor: RED, fillOpacity: 1 }}
-          >
-            <Tooltip permanent direction="top" offset={[0, -10]}>
-              {bus.plate_number} · {DIRECTION_LABELS[bus.direction]}
-            </Tooltip>
-          </CircleMarker>
-        ))}
+        {buses.map((bus) => {
+          const stale = secondsSinceSeen(bus, now) > STALE_AFTER_SECONDS
+          return (
+            <CircleMarker
+              key={bus.journey_id}
+              center={[bus.latitude, bus.longitude]}
+              radius={11}
+              pathOptions={{
+                color: '#ffffff',
+                weight: 3,
+                fillColor: stale ? GREY : RED,
+                fillOpacity: 1,
+              }}
+            >
+              <Tooltip permanent direction="top" offset={[0, -10]}>
+                {bus.plate_number} · {DIRECTION_LABELS[bus.direction]}
+                {stale && ' · not live'}
+              </Tooltip>
+            </CircleMarker>
+          )
+        })}
       </MapContainer>
       <p className="muted live-status">
         {connected ? '● Live' : 'Connecting to live updates…'}
         {connected && buses.length === 0 && ' · No bus is on the road right now'}
       </p>
-      <LiveBusSummary buses={buses} />
+      <LiveBusSummary buses={buses} now={now} />
     </div>
   )
 }

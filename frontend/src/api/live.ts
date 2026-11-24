@@ -19,6 +19,7 @@ export type LiveBus = {
   recorded_at: string
   next_stop: string | null // null when the bus is not on the route yet
   eta_minutes: number | null
+  age_seconds: number // how old the position was when the server sent it
 }
 
 // The route and its stops, for drawing the map (no sign-in needed)
