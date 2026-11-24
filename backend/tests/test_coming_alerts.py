@@ -110,7 +110,7 @@ def test_no_coming_alert_once_the_bus_is_at_the_stop(client, driver, student, jo
     """At the stop, 'the bus has arrived' is the alert that fits (#26), not '5 minutes'."""
     choose(client, student, journey, "pickup", KIMIRONKO)
     send(client, driver, journey, at(KIMIRONKO))
-    assert my_alerts(client, student, journey) == []
+    assert my_alerts(client, student, journey) == ["arrived"]
 
 
 def test_no_alert_while_the_bus_is_off_the_route(client, driver, student, journey):

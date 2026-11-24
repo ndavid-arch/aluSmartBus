@@ -1,22 +1,23 @@
-"""'The bus is coming' alerts: about 10 and 5 minutes before the bus reaches a pickup stop (#25).
+"""Alerts for students waiting for a pickup (the server decides; the student's page shows them).
 
-FR-44, FR-45. The server decides when an alert is due and records it in the notifications
-table, so each one is sent only once per journey; the student's page then shows it.
+- 'The bus is coming', about 10 and 5 minutes before the stop (#25, FR-44, FR-45)
+- 'The bus is here', when it reaches the stop (#26, FR-46)
+- 'You missed the bus' is sent where pickups are marked missed, in app/boarding.py (FR-47)
+
+Each is saved in the notifications table, so a student gets each kind once per journey.
 """
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.boarding import pickup_arrivals
+from app.boarding import pickup_arrivals, waiting_pickups
 from app.eta import minutes_to_stops_ahead
 from app.models import (
     Journey,
     LocationUpdate,
     Notification,
     NotificationType,
-    PickupStatus,
-    SelectionType,
-    StopSelection,
+    StopArrival,
 )
 
 # Closest first: a bus 4 minutes away gets the 5-minute alert, not the 10-minute one
@@ -47,15 +48,8 @@ def send_coming_alerts(
         (alert.student_id, alert.type)
         for alert in db.scalars(select(Notification).where(Notification.journey_id == journey.id))
     }
-    waiting = db.scalars(
-        select(StopSelection).where(
-            StopSelection.journey_id == journey.id,
-            StopSelection.type == SelectionType.PICKUP,
-            StopSelection.pickup_status == PickupStatus.PENDING,
-        )
-    )
     new_alerts = []
-    for pickup in waiting:
+    for pickup in waiting_pickups(db, journey):
         minutes = minutes_away.get(pickup.stop_id)  # None: passed, or the bus is off the route
         if minutes is None or pickup.stop_id in arrived:
             continue
@@ -71,6 +65,26 @@ def send_coming_alerts(
             journey_id=journey.id,
             type=kind,
             message=coming_message(kind, pickup.stop.name),
+        )
+        db.add(alert)
+        new_alerts.append(alert)
+    return new_alerts
+
+
+def send_arrival_alerts(
+    db: Session, journey: Journey, new_arrivals: list[StopArrival]
+) -> list[Notification]:
+    """Tell each student waiting at a stop the bus has just reached that it is there (FR-46)."""
+    reached = {arrival.stop_id for arrival in new_arrivals}
+    new_alerts = []
+    for pickup in waiting_pickups(db, journey):
+        if pickup.stop_id not in reached:
+            continue
+        alert = Notification(
+            student_id=pickup.student_id,
+            journey_id=journey.id,
+            type=NotificationType.ARRIVED,
+            message=f"The bus is at {pickup.stop.name}. Board within 3 minutes.",
         )
         db.add(alert)
         new_alerts.append(alert)
