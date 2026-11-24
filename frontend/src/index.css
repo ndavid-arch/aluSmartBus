@@ -519,3 +519,9 @@ main {
   color: var(--navy);
   font-weight: 600;
 }
+
+/* Location not live (#19) */
+.not-live {
+  color: var(--red);
+  font-weight: 600;
+}
