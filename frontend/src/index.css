@@ -565,3 +565,8 @@ main {
 .stop-requests li.stop-needed strong {
   color: var(--red);
 }
+
+/* Bus alerts under the stop picker (#25) */
+.bus-alerts {
+  margin-top: 0.75rem;
+}

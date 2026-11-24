@@ -10,6 +10,7 @@ import {
 } from '../api/selections'
 import { useRepeat } from '../hooks/useRepeat'
 import PickupStatus from './PickupStatus'
+import BusAlerts from './BusAlerts'
 
 type Props = {
   journeyId: string
@@ -94,6 +95,7 @@ function StopPicker({ journeyId, token }: Props) {
       ))}
       <p role="status">{summary(pickup, chosen('dropoff'))}</p>
       {pickup && <PickupStatus pickup={pickup} />}
+      <BusAlerts journeyId={journeyId} token={token} waiting={pickup?.window_state === 'waiting'} />
       {error && <p className="error">{error}</p>}
     </div>
   )
