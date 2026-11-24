@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     location_accuracy_limit_m: float = 30  # readings less precise than this are not saved (#9)
     average_bus_speed_kmh: float = 20  # for ETAs; refine with real journey data after the pilot
     off_route_distance_m: float = 400  # farther than this from the route: "Not on the route yet"
-    arrival_radius_m: float = 50  # this close to a stop counts as being at it
 
 
 @lru_cache

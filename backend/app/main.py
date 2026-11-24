@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 
 from app.routers import (
+    arrivals,
     auth,
     bus_status,
     buses,
@@ -24,3 +25,4 @@ app.include_router(journeys.router)
 app.include_router(locations.router)
 app.include_router(live.router)
 app.include_router(selections.router)
+app.include_router(arrivals.router)
