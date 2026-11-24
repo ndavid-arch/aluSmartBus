@@ -8,8 +8,9 @@ from dataclasses import dataclass
 from itertools import pairwise
 from math import ceil, cos, hypot, radians
 
+from app.core.config import get_settings
 from app.geo import EARTH_RADIUS_M
-from app.models import Direction, Stop
+from app.models import Direction, Journey, LocationUpdate, Stop
 
 SECONDS_PER_MINUTE = 60
 
@@ -22,6 +23,8 @@ class Progress:
 
     next_stop: str | None
     eta_minutes: int | None
+    # The next stop's place in travel order; the stops before it have been passed
+    next_index: int | None = None
 
 
 def to_xy(lat: float, lng: float, ref_lat: float) -> Point:
@@ -82,4 +85,19 @@ def bus_progress(
 
     metres_per_second = speed_kmh * 1000 / 3600
     eta = ceil(metres_left / metres_per_second / SECONDS_PER_MINUTE)
-    return Progress(next_stop=route[next_index].name, eta_minutes=max(eta, 0))
+    return Progress(
+        next_stop=route[next_index].name, eta_minutes=max(eta, 0), next_index=next_index
+    )
+
+
+def journey_progress(journey: Journey, location: LocationUpdate) -> Progress:
+    """bus_progress for a journey at one of its readings, using the app's settings."""
+    settings = get_settings()
+    return bus_progress(
+        journey.route.stops,
+        journey.direction,
+        location.latitude,
+        location.longitude,
+        settings.average_bus_speed_kmh,
+        settings.off_route_distance_m,
+    )

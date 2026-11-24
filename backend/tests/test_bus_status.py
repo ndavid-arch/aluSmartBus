@@ -24,6 +24,7 @@ def test_anyone_can_see_bus_status_without_signing_in(client, bus):
     [listed] = response.json()
     assert listed["plate_number"] == "RAB 123 A"
     assert listed["availability"] == "available"
+    assert listed["journey_id"] is None  # not on the road
     assert "qr_code" not in listed
 
 

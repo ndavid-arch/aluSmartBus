@@ -6,8 +6,7 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict
 
-from app.core.config import get_settings
-from app.eta import bus_progress
+from app.eta import journey_progress
 from app.models import Direction, Journey, LocationUpdate
 
 
@@ -58,15 +57,8 @@ class LiveBus(BaseModel):
     @classmethod
     def from_parts(cls, journey: Journey, location: LocationUpdate) -> Self:
         """Combine a journey and its latest reading into one map entry, with next stop and ETA."""
-        settings = get_settings()
-        progress = bus_progress(
-            journey.route.stops,
-            journey.direction,
-            location.latitude,
-            location.longitude,
-            settings.average_bus_speed_kmh,
-            settings.off_route_distance_m,
-        )
+        progress = journey_progress(journey, location)
+
         return cls(
             journey_id=journey.id,
             bus_id=journey.bus_id,
