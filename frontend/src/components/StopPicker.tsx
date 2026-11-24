@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ApiError } from '../api/client'
 import {
   chooseStop,
@@ -8,15 +8,13 @@ import {
   type Selection,
   type SelectionType,
 } from '../api/selections'
+import { useRepeat } from '../hooks/useRepeat'
 import PickupStatus from './PickupStatus'
 
 type Props = {
   journeyId: string
   token: string
 }
-
-// Check for news (the bus reaching my stop, a missed pickup) this often while the page is open
-const REFRESH_EVERY_MS = 10000
 
 // The two choices a student makes, with the words shown for each
 const CHOICES: { type: SelectionType; label: string }[] = [
@@ -51,11 +49,8 @@ function StopPicker({ journeyId, token }: Props) {
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Could not load the stops.'))
   }, [journeyId, token])
 
-  useEffect(() => {
-    load()
-    const timer = window.setInterval(load, REFRESH_EVERY_MS)
-    return () => window.clearInterval(timer)
-  }, [load])
+  // Keep checking for news: the bus reaching my stop, a missed pickup (#23)
+  useRepeat(load)
 
   // Save the choice; if refused (say the bus has just passed it), show why and reload the list
   async function handleChoose(type: SelectionType, stopId: string) {

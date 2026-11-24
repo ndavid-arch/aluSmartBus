@@ -546,3 +546,22 @@ main {
 .stop-picker p {
   margin: 0;
 }
+
+/* The driver's list of stops ahead (#24) */
+.stop-requests ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop-requests li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #e3e7ee;
+}
+
+.stop-requests li.stop-needed strong {
+  color: var(--red);
+}

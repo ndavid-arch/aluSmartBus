@@ -5,6 +5,9 @@ export type SelectionType = 'pickup' | 'dropoff'
 // A stop of a journey, in the order the bus meets it, and whether the bus has passed it
 export type JourneyStop = { id: string; name: string; sequence: number; passed: boolean }
 
+// A stop with how many students the driver picks up and drops off there (#24)
+export type StopRequests = JourneyStop & { pickups: number; dropoffs: number }
+
 // Where a pickup stands: bus not there yet, bus there (board now), boarded, or missed (#23)
 export type WindowState = 'waiting' | 'open' | 'boarded' | 'missed'
 
@@ -39,4 +42,9 @@ export function chooseStop(
     { method: 'PUT', body: JSON.stringify({ stop_id: stopId }) },
     token,
   )
+}
+
+// Every stop of my journey with who waits and who gets off there (drivers and admins only)
+export function listStopRequests(journeyId: string, token: string): Promise<StopRequests[]> {
+  return apiFetch<StopRequests[]>(`/journeys/${journeyId}/requests`, {}, token)
 }
