@@ -2,12 +2,16 @@
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base, IdMixin, set_to_now
 from app.models.enums import NotificationType, PickupStatus, SelectionType
+
+if TYPE_CHECKING:
+    from app.models.route import Stop
 
 
 class StopSelection(IdMixin, Base):
@@ -27,6 +31,7 @@ class StopSelection(IdMixin, Base):
         Enum(PickupStatus, native_enum=False, length=20), default=PickupStatus.PENDING
     )
     selected_at: Mapped[datetime] = set_to_now()
+    stop: Mapped["Stop"] = relationship()
 
 
 class BoardingRecord(IdMixin, Base):

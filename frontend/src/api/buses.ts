@@ -9,6 +9,7 @@ export type BusStatus = {
   capacity: number
   availability: Availability
   unavailable_reason: string | null
+  journey_id?: string | null // the journey it is on right now (public bus list only)
 }
 
 // A bus as the admin sees it: its status plus the text printed as its QR sticker

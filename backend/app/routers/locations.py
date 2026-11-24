@@ -3,8 +3,6 @@
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.deps import DbSession, DriverUser
@@ -12,21 +10,11 @@ from app.eta import stops_in_travel_order
 from app.geo import distance_m
 from app.live import journey_ended_message, live_updates
 from app.models import Journey, JourneyStatus, LocationUpdate
-from app.routers.journeys import complete, get_journey_or_404
+from app.routers.journeys import complete, get_journey_or_404, latest_reading
 from app.schemas.live import LiveBus
 from app.schemas.locations import LocationIn, LocationOut, LocationSaved
 
 router = APIRouter(prefix="/journeys", tags=["locations"])
-
-
-def latest_reading(db: Session, journey: Journey) -> LocationUpdate | None:
-    """The newest position saved for this journey so far, if any."""
-    return db.scalar(
-        select(LocationUpdate)
-        .where(LocationUpdate.journey_id == journey.id)
-        .order_by(LocationUpdate.recorded_at.desc())
-        .limit(1)
-    )
 
 
 def reached_terminal(

@@ -60,6 +60,9 @@ class BusStatus(BaseModel):
     capacity: int
     availability: Availability
     unavailable_reason: str | None
+    # The journey it is on right now, so students can choose their stops (#21);
+    # filled in by the public bus list, None when the bus is not on the road
+    journey_id: uuid.UUID | None = None
 
 
 class BusOut(BusStatus):

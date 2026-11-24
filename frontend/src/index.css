@@ -541,3 +541,8 @@ main {
 .confirm-end p {
   margin: 0;
 }
+
+/* Choosing stops (#21) */
+.stop-picker p {
+  margin: 0;
+}

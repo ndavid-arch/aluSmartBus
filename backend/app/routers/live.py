@@ -6,7 +6,8 @@ from sqlalchemy.orm import selectinload
 
 from app.core.deps import DbSession
 from app.live import live_updates
-from app.models import Journey, JourneyStatus, LocationUpdate, Route
+from app.models import Journey, JourneyStatus, Route
+from app.routers.journeys import latest_reading
 from app.schemas.live import LiveBus, RouteOut
 from app.seed_data import ROUTE_NAME
 
@@ -30,12 +31,7 @@ def list_live_buses(db: DbSession) -> list[LiveBus]:
     journeys = db.scalars(select(Journey).where(Journey.status == JourneyStatus.ACTIVE))
     buses = []
     for journey in journeys:
-        latest = db.scalar(
-            select(LocationUpdate)
-            .where(LocationUpdate.journey_id == journey.id)
-            .order_by(LocationUpdate.recorded_at.desc())
-            .limit(1)
-        )
+        latest = latest_reading(db, journey)
         if latest is not None:  # a journey that has not sent a position yet has nothing to show
             buses.append(LiveBus.from_parts(journey, latest))
     return buses

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import DbSession, DriverUser, StaffUser
 from app.live import journey_ended_message, live_updates
-from app.models import Availability, Journey, JourneyStatus, Route
+from app.models import Availability, Journey, JourneyStatus, LocationUpdate, Route
 from app.routers.buses import get_bus_or_404
 from app.schemas.journeys import JourneyOut, JourneyStart
 from app.seed_data import ROUTE_NAME
@@ -36,6 +36,16 @@ def get_journey_or_404(db: Session, journey_id: uuid.UUID) -> Journey:
     if journey is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Journey not found")
     return journey
+
+
+def latest_reading(db: Session, journey: Journey) -> LocationUpdate | None:
+    """The newest position saved for this journey so far, if any."""
+    return db.scalar(
+        select(LocationUpdate)
+        .where(LocationUpdate.journey_id == journey.id)
+        .order_by(LocationUpdate.recorded_at.desc())
+        .limit(1)
+    )
 
 
 def complete(journey: Journey) -> None:
