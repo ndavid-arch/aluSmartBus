@@ -12,7 +12,7 @@ from app.models.enums import ArrivalStatus, Direction, JourneyStatus
 
 if TYPE_CHECKING:
     from app.models.bus import Bus
-    from app.models.route import Route
+    from app.models.route import Route, Stop
     from app.models.user import User
 
 # Enum columns store the member's NAME, so an active journey has status 'ACTIVE' in the table
@@ -87,3 +87,4 @@ class StopArrival(IdMixin, Base):
     )
 
     journey: Mapped[Journey] = relationship(back_populates="stop_arrivals")
+    stop: Mapped["Stop"] = relationship()

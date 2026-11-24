@@ -1,10 +1,10 @@
-"""The driver's phone sends the bus position during an active journey (#16, #20)."""
+"""The driver's phone sends the bus position during an active journey (#16, #20, #22)."""
 
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
-from app.core.config import get_settings
+from app.arrivals import record_arrivals
 from app.core.deps import DbSession, DriverUser
 from app.eta import stops_in_travel_order
 from app.geo import distance_m
@@ -13,12 +13,13 @@ from app.models import Journey, JourneyStatus, LocationUpdate
 from app.routers.journeys import complete, get_journey_or_404, latest_reading
 from app.schemas.live import LiveBus
 from app.schemas.locations import LocationIn, LocationOut, LocationSaved
+from app.system_settings import current_settings
 
 router = APIRouter(prefix="/journeys", tags=["locations"])
 
 
 def reached_terminal(
-    journey: Journey, reading: LocationIn, previous: LocationUpdate | None
+    journey: Journey, reading: LocationIn, previous: LocationUpdate | None, radius_m: float
 ) -> bool:
     """True when this reading is at the last stop and the one before was not (FR-18).
 
@@ -26,10 +27,9 @@ def reached_terminal(
     at the terminal is not ended straight away.
     """
     terminal = stops_in_travel_order(journey.route.stops, journey.direction)[-1]
-    radius = get_settings().arrival_radius_m
 
     def at_terminal(lat: float, lng: float) -> bool:
-        return distance_m(lat, lng, terminal.latitude, terminal.longitude) <= radius
+        return distance_m(lat, lng, terminal.latitude, terminal.longitude) <= radius_m
 
     return (
         previous is not None
@@ -46,17 +46,19 @@ def share_location(
     driver: DriverUser,
     background_tasks: BackgroundTasks,
 ) -> LocationSaved:
-    """Save one position of the bus, push it to every open map, and end the journey at the
-    terminal (FR-18, FR-20 to FR-22)."""
+    """Save one position of the bus, note any stop it has reached, push it to every open map,
+    and end the journey at the terminal (FR-18, FR-20 to FR-22, FR-28 to FR-30)."""
     journey = get_journey_or_404(db, journey_id)
     if journey.driver_id != driver.id:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This is not your journey")
     if journey.status != JourneyStatus.ACTIVE:
         raise HTTPException(status.HTTP_409_CONFLICT, detail="This journey has ended")
 
-    arrived = reached_terminal(journey, reading, latest_reading(db, journey))
+    radius_m = current_settings(db).arrival_radius_m
+    arrived = reached_terminal(journey, reading, latest_reading(db, journey), radius_m)
     location = LocationUpdate(journey_id=journey.id, **reading.model_dump())
     db.add(location)
+    record_arrivals(journey, reading.latitude, reading.longitude, radius_m)
     if arrived:
         complete(journey)
     db.commit()

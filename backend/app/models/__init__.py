@@ -13,6 +13,7 @@ from app.models.enums import (
 )
 from app.models.journey import Journey, LocationUpdate, StopArrival
 from app.models.route import Route, Stop
+from app.models.settings import SystemSettings
 from app.models.student_activity import BoardingRecord, Notification, StopSelection
 from app.models.user import User
 
@@ -34,5 +35,6 @@ __all__ = [
     "Stop",
     "StopArrival",
     "StopSelection",
+    "SystemSettings",
     "User",
 ]
