@@ -1,12 +1,14 @@
+import { useAuth } from '../auth/AuthContext'
 import RouteMap from '../components/RouteMap.tsx'
 import StudentBusList from '../components/StudentBusList'
 
-// The student area: choose a bus (with its status) above the route map
+// The student area: choose a bus and your stops (#21) above the live map
 function StudentPage() {
+  const { token } = useAuth()
   return (
     <section className="page">
       <h1>Choose your bus</h1>
-      <StudentBusList />
+      <StudentBusList token={token} />
       <RouteMap />
     </section>
   )

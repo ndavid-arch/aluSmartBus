@@ -3,9 +3,16 @@ import { ApiError } from '../api/client'
 import { getBusStatus, type BusStatus } from '../api/buses'
 import { useBusStatus } from '../hooks/useBusStatus'
 import StatusBadge from './StatusBadge'
+import StopPicker from './StopPicker'
 
-// What the student sees after choosing a bus: a warning if it is not running (FR-49, FR-50)
-function SelectionMessage({ bus }: { bus: BusStatus }) {
+type MessageProps = {
+  bus: BusStatus
+  token?: string | null // signed-in students can choose their stops; guests cannot
+}
+
+// What the student sees after choosing a bus: a warning if it is not running (FR-49, FR-50),
+// otherwise where it is and, for a bus on the road, the stops to choose from (#21)
+function SelectionMessage({ bus, token }: MessageProps) {
   if (bus.availability === 'unavailable') {
     return (
       <div className="panel warning" role="alert">
@@ -17,17 +24,34 @@ function SelectionMessage({ bus }: { bus: BusStatus }) {
       </div>
     )
   }
+  if (!bus.journey_id) {
+    return (
+      <div className="panel notice" role="status">
+        <p>
+          <strong>{bus.plate_number}</strong> is not on the road yet. You can choose your stop once
+          its journey starts.
+        </p>
+      </div>
+    )
+  }
   return (
-    <div className="panel notice" role="status">
-      <p>
-        You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map below.
-      </p>
-    </div>
+    <>
+      <div className="panel notice" role="status">
+        <p>
+          You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map below.
+        </p>
+      </div>
+      {token && <StopPicker journeyId={bus.journey_id} token={token} />}
+    </>
   )
 }
 
+type Props = {
+  token?: string | null
+}
+
 // The student's bus list: every bus with its status; choosing one checks it again (FR-08, FR-48)
-function StudentBusList() {
+function StudentBusList({ token }: Props) {
   const { buses, loadError, replaceBus } = useBusStatus()
   const [selected, setSelected] = useState<BusStatus | null>(null)
   const [checkError, setCheckError] = useState('')
@@ -65,7 +89,7 @@ function StudentBusList() {
         ))}
       </ul>
       {checkError && <p className="error">{checkError}</p>}
-      {selected && <SelectionMessage bus={selected} />}
+      {selected && <SelectionMessage bus={selected} token={token} />}
     </>
   )
 }
