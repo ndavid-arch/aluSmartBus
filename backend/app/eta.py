@@ -1,4 +1,5 @@
-"""Where a bus is along its route: the next stop and roughly when it gets there (FR-24, FR-25).
+"""Where a bus is along its route: the next stop and roughly when it gets there (FR-24, FR-25),
+and how long until each stop after it (#25).
 
 The route is treated as straight lines between consecutive stops. Over a few kilometres of
 Kigali that is close enough, and it needs no outside map service.
@@ -53,6 +54,43 @@ def stops_in_travel_order(stops: list[Stop], direction: Direction) -> list[Stop]
     return ordered if direction == Direction.REBERO_TO_ALU else ordered[::-1]
 
 
+def minutes_for(metres: float, speed_kmh: float) -> int:
+    """Whole minutes to drive this far at the average speed, rounded up."""
+    metres_per_second = speed_kmh * 1000 / 3600
+    return max(ceil(metres / metres_per_second / SECONDS_PER_MINUTE), 0)
+
+
+def locate_on_route(
+    route: list[Stop], lat: float, lng: float, off_route_m: float
+) -> tuple[int, list[float]] | None:
+    """The bus's next stop (its place in travel order) and the metres from the bus to it and to
+    every later stop; None when the bus is not on the route."""
+    if len(route) < 2:
+        return None
+    ref_lat = route[0].latitude
+    bus = to_xy(lat, lng, ref_lat)
+    points = [to_xy(stop.latitude, stop.longitude, ref_lat) for stop in route]
+
+    # The leg of the route the bus is closest to tells us which stop comes next
+    legs = [closest_point_on_segment(bus, a, b) for a, b in pairwise(points)]
+    leg, (along, distance_from_route) = min(enumerate(legs), key=lambda item: item[1][1])
+    if distance_from_route > off_route_m:
+        return None
+
+    if leg == 0 and along == 0:
+        next_index, metres_left = 0, hypot(bus[0] - points[0][0], bus[1] - points[0][1])
+    else:
+        a, b = points[leg], points[leg + 1]
+        next_index = leg + 1
+        metres_left = (1 - along) * hypot(b[0] - a[0], b[1] - a[1])
+
+    # Then add each leg after the next stop, one by one
+    metres = [metres_left]
+    for a, b in pairwise(points[next_index:]):
+        metres.append(metres[-1] + hypot(b[0] - a[0], b[1] - a[1]))
+    return next_index, metres
+
+
 def bus_progress(
     stops: list[Stop],
     direction: Direction,
@@ -63,31 +101,34 @@ def bus_progress(
 ) -> Progress:
     """Find the bus's next stop and ETA from its position, or say it is not on the route."""
     route = stops_in_travel_order(stops, direction)
-    if len(route) < 2:
+    located = locate_on_route(route, lat, lng, off_route_m)
+    if located is None:
         return Progress(next_stop=None, eta_minutes=None)
-
-    ref_lat = route[0].latitude
-    bus = to_xy(lat, lng, ref_lat)
-    points = [to_xy(stop.latitude, stop.longitude, ref_lat) for stop in route]
-
-    # The leg of the route the bus is closest to tells us which stop comes next
-    legs = [closest_point_on_segment(bus, a, b) for a, b in pairwise(points)]
-    leg, (along, distance_from_route) = min(enumerate(legs), key=lambda item: item[1][1])
-    if distance_from_route > off_route_m:
-        return Progress(next_stop=None, eta_minutes=None)
-
-    if leg == 0 and along == 0:
-        next_index, metres_left = 0, hypot(bus[0] - points[0][0], bus[1] - points[0][1])
-    else:
-        a, b = points[leg], points[leg + 1]
-        next_index = leg + 1
-        metres_left = (1 - along) * hypot(b[0] - a[0], b[1] - a[1])
-
-    metres_per_second = speed_kmh * 1000 / 3600
-    eta = ceil(metres_left / metres_per_second / SECONDS_PER_MINUTE)
+    next_index, metres = located
     return Progress(
-        next_stop=route[next_index].name, eta_minutes=max(eta, 0), next_index=next_index
+        next_stop=route[next_index].name,
+        eta_minutes=minutes_for(metres[0], speed_kmh),
+        next_index=next_index,
     )
+
+
+def minutes_to_stops_ahead(journey: Journey, location: LocationUpdate) -> dict:
+    """Minutes until the bus reaches each stop still ahead of it, by stop ID (#25).
+
+    Empty when the bus is off the route, so no alert goes out on a guess.
+    """
+    settings = get_settings()
+    route = stops_in_travel_order(journey.route.stops, journey.direction)
+    located = locate_on_route(
+        route, location.latitude, location.longitude, settings.off_route_distance_m
+    )
+    if located is None:
+        return {}
+    next_index, metres = located
+    return {
+        stop.id: minutes_for(distance, settings.average_bus_speed_kmh)
+        for stop, distance in zip(route[next_index:], metres, strict=True)
+    }
 
 
 def journey_progress(journey: Journey, location: LocationUpdate) -> Progress:

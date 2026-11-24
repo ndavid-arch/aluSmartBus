@@ -1,10 +1,11 @@
-"""The driver's phone sends the bus position during an active journey (#16, #20, #22, #23)."""
+"""The driver's phone sends the bus position during an active journey (#16, #20, #22, #23, #25)."""
 
 import uuid
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
+from app.alerts import send_coming_alerts
 from app.arrivals import record_arrivals
 from app.boarding import expire_missed_pickups
 from app.core.deps import DbSession, DriverUser
@@ -48,8 +49,9 @@ def share_location(
     driver: DriverUser,
     background_tasks: BackgroundTasks,
 ) -> LocationSaved:
-    """Save one position of the bus, note any stop it has reached, push it to every open map,
-    and end the journey at the terminal (FR-18, FR-20 to FR-22, FR-28 to FR-30)."""
+    """Save one position of the bus, note any stop it has reached, mark missed pickups, send
+    'bus is coming' alerts, push it to every open map, and end the journey at the terminal
+    (FR-18, FR-20 to FR-22, FR-28 to FR-33, FR-44, FR-45)."""
     journey = get_journey_or_404(db, journey_id)
     if journey.driver_id != driver.id:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This is not your journey")
@@ -63,6 +65,7 @@ def share_location(
     record_arrivals(journey, reading.latitude, reading.longitude, radius_m)
     db.flush()  # so the new arrivals have their times before the window check below
     expire_missed_pickups(db, journey, datetime.now(UTC))
+    send_coming_alerts(db, journey, location)
     if arrived:
         complete(journey)
     db.commit()
