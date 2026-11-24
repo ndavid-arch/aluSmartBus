@@ -8,11 +8,15 @@ import {
   type Selection,
   type SelectionType,
 } from '../api/selections'
+import PickupStatus from './PickupStatus'
 
 type Props = {
   journeyId: string
   token: string
 }
+
+// Check for news (the bus reaching my stop, a missed pickup) this often while the page is open
+const REFRESH_EVERY_MS = 10000
 
 // The two choices a student makes, with the words shown for each
 const CHOICES: { type: SelectionType; label: string }[] = [
@@ -49,6 +53,8 @@ function StopPicker({ journeyId, token }: Props) {
 
   useEffect(() => {
     load()
+    const timer = window.setInterval(load, REFRESH_EVERY_MS)
+    return () => window.clearInterval(timer)
   }, [load])
 
   // Save the choice; if refused (say the bus has just passed it), show why and reload the list
@@ -64,6 +70,9 @@ function StopPicker({ journeyId, token }: Props) {
   }
 
   const chosen = (type: SelectionType) => mine.find((selection) => selection.type === type)
+  const pickup = chosen('pickup')
+  // Once the bus is at my pickup stop (or it is too late), the pickup can no longer change
+  const pickupSettled = pickup !== undefined && pickup.window_state !== 'waiting'
 
   return (
     <div className="panel form stop-picker">
@@ -74,6 +83,7 @@ function StopPicker({ journeyId, token }: Props) {
           <select
             value={chosen(type)?.stop.id ?? ''}
             onChange={(e) => handleChoose(type, e.target.value)}
+            disabled={type === 'pickup' && pickupSettled}
           >
             <option value="" disabled>
               Choose a stop
@@ -87,7 +97,8 @@ function StopPicker({ journeyId, token }: Props) {
           </select>
         </label>
       ))}
-      <p role="status">{summary(chosen('pickup'), chosen('dropoff'))}</p>
+      <p role="status">{summary(pickup, chosen('dropoff'))}</p>
+      {pickup && <PickupStatus pickup={pickup} />}
       {error && <p className="error">{error}</p>}
     </div>
   )
