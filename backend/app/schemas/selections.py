@@ -24,6 +24,13 @@ class JourneyStop(BaseModel):
     passed: bool
 
 
+class StopRequests(JourneyStop):
+    """A stop with how many students the driver picks up and drops off there (#24)."""
+
+    pickups: int
+    dropoffs: int
+
+
 class StopSummary(BaseModel):
     """The chosen stop, as the student's screen shows it."""
 
