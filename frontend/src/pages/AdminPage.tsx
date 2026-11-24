@@ -3,12 +3,14 @@ import { ApiError } from '../api/client'
 import { listDrivers, type CreatedDriver, type Driver } from '../api/drivers'
 import { useAuth } from '../auth/AuthContext'
 import AddDriverForm from '../components/AddDriverForm'
+import ArrivalSettings from '../components/ArrivalSettings'
 import BusesSection from '../components/BusesSection'
 import DriverList from '../components/DriverList'
 import JourneyList from '../components/JourneyList'
 import { useActiveJourneys } from '../hooks/useActiveJourneys'
 
-// The administrator area: journeys on the road (#15), driver accounts (#12) and buses (#13)
+// The administrator area: journeys on the road (#15), driver accounts (#12), buses (#13)
+// and the arrival distance (#22)
 function AdminPage() {
   const { token } = useAuth()
   const [drivers, setDrivers] = useState<Driver[]>([])
@@ -63,6 +65,8 @@ function AdminPage() {
       {loadError ? <p className="error">{loadError}</p> : <DriverList drivers={drivers} />}
 
       <BusesSection token={token} />
+
+      <ArrivalSettings token={token} />
     </section>
   )
 }
