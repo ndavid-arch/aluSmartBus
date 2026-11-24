@@ -2,12 +2,13 @@
 
 import uuid
 
-from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import ColumnElement, select
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.deps import DbSession, DriverUser, StaffUser
+from app.live import journey_ended_message, live_updates
 from app.models import Availability, Journey, JourneyStatus, Route
 from app.routers.buses import get_bus_or_404
 from app.schemas.journeys import JourneyOut, JourneyStart
@@ -35,6 +36,12 @@ def get_journey_or_404(db: Session, journey_id: uuid.UUID) -> Journey:
     if journey is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Journey not found")
     return journey
+
+
+def complete(journey: Journey) -> None:
+    """Mark a journey as finished now; the row and its positions are kept for reports (FR-19)."""
+    journey.status = JourneyStatus.COMPLETED
+    journey.ended_at = func.now()
 
 
 def has_active_journey(db: Session, condition: ColumnElement[bool]) -> bool:
@@ -78,3 +85,21 @@ def list_active_journeys(db: DbSession, _staff: StaffUser) -> list[JourneyOut]:
         .order_by(Journey.started_at.desc())
     )
     return [JourneyOut.model_validate(journey) for journey in journeys]
+
+
+@router.post("/{journey_id}/end")
+def end_journey(
+    journey_id: uuid.UUID, db: DbSession, driver: DriverUser, background_tasks: BackgroundTasks
+) -> JourneyOut:
+    """The driver ends their journey by hand, for example if it stops before the terminal."""
+    journey = get_journey_or_404(db, journey_id)
+    if journey.driver_id != driver.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This is not your journey")
+    if journey.status != JourneyStatus.ACTIVE:
+        raise HTTPException(status.HTTP_409_CONFLICT, detail="This journey has already ended")
+
+    complete(journey)
+    db.commit()
+    db.refresh(journey)
+    background_tasks.add_task(live_updates.broadcast, journey_ended_message(journey.id))
+    return JourneyOut.model_validate(journey)
