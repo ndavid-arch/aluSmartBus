@@ -50,7 +50,12 @@ class Notification(IdMixin, Base):
     """An alert sent to a student, kept so we never send the same one twice."""
 
     __tablename__ = "notifications"
-
+    # Each kind of alert goes to a student at most once per journey (#25)
+    __table_args__ = (
+        UniqueConstraint(
+            "student_id", "journey_id", "type", name="one_alert_of_each_kind_per_trip"
+        ),
+    )
     student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     journey_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("journeys.id"))
     type: Mapped[NotificationType] = mapped_column(

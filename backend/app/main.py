@@ -12,6 +12,7 @@ from app.routers import (
     journeys,
     live,
     locations,
+    notifications,
     selections,
 )
 
@@ -26,3 +27,4 @@ app.include_router(locations.router)
 app.include_router(live.router)
 app.include_router(selections.router)
 app.include_router(arrivals.router)
+app.include_router(notifications.router)
