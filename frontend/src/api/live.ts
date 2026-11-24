@@ -9,6 +9,7 @@ export type RouteInfo = { name: string; stops: Stop[] }
 
 // Where one bus on the road is now; the same shape on page load and in live updates
 export type LiveBus = {
+  type: 'position'
   journey_id: string
   bus_id: string
   plate_number: string

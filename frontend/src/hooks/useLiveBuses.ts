@@ -20,6 +20,16 @@ function track(bus: LiveBus): TrackedBus {
   return { ...bus, seenAt: Date.now() - bus.age_seconds * 1000 }
 }
 
+// A live message is either a new position or the end of a journey (#20)
+type LiveMessage = LiveBus | { type: 'journey_ended'; journey_id: string }
+
+// Remove a bus whose journey is over, so it disappears from every map
+function withoutJourney(current: Map<string, TrackedBus>, journeyId: string) {
+  const next = new Map(current)
+  next.delete(journeyId)
+  return next
+}
+
 // Keep one entry per journey; never let an older position replace a newer one
 function withNewer(current: Map<string, TrackedBus>, bus: LiveBus): Map<string, TrackedBus> {
   const known = current.get(bus.journey_id)
@@ -42,8 +52,12 @@ export function useLiveBuses() {
       socket = new WebSocket(liveSocketUrl())
       socket.onopen = () => setConnected(true)
       socket.onmessage = (event) => {
-        const bus = JSON.parse(event.data) as LiveBus
-        setBuses((current) => withNewer(current, bus))
+        const message = JSON.parse(event.data) as LiveMessage
+        if (message.type === 'journey_ended') {
+          setBuses((current) => withoutJourney(current, message.journey_id))
+        } else {
+          setBuses((current) => withNewer(current, message))
+        }
       }
       socket.onclose = () => {
         setConnected(false)

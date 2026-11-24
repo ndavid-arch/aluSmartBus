@@ -4,6 +4,7 @@ import { useWakeLock } from '../hooks/useWakeLock'
 type Props = {
   journeyId: string
   token: string
+  onEnded: () => void
 }
 
 // What each state means for the driver, in plain words
@@ -17,8 +18,12 @@ const STATUS_MESSAGES: Record<SharingStatus, string> = {
 }
 
 // Shows the driver that the bus position is being shared, and keeps the screen on (#16, FR-66)
-function LocationSharing({ journeyId, token }: Props) {
-  const { status, lastSentAt, pausedWhileAway, dismissPause } = useLocationSharing(journeyId, token)
+function LocationSharing({ journeyId, token, onEnded }: Props) {
+  const { status, lastSentAt, pausedWhileAway, dismissPause } = useLocationSharing(
+    journeyId,
+    token,
+    onEnded,
+  )
   useWakeLock(status !== 'denied' && status !== 'unsupported')
 
   const isProblem = status === 'denied' || status === 'unsupported' || status === 'error'
