@@ -1,6 +1,7 @@
-"""Students choose where the bus picks them up and drops them off (#21)."""
+"""Students choose their pickup and drop-off stops (#21); the driver sees them (#24)."""
 
 import uuid
+from collections import Counter
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, status
@@ -8,11 +9,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.boarding import expire_missed_pickups, pickup_arrivals, window_closes_at
-from app.core.deps import DbSession, StudentUser
+from app.core.deps import DbSession, StaffUser, StudentUser
 from app.eta import journey_progress, stops_in_travel_order
-from app.models import Journey, JourneyStatus, PickupStatus, SelectionType, StopSelection, User
+from app.models import (
+    Journey,
+    JourneyStatus,
+    PickupStatus,
+    Role,
+    SelectionType,
+    StopSelection,
+    User,
+)
 from app.routers.journeys import get_journey_or_404, latest_reading
-from app.schemas.selections import JourneyStop, SelectionChoice, SelectionOut
+from app.schemas.selections import JourneyStop, SelectionChoice, SelectionOut, StopRequests
 
 router = APIRouter(prefix="/journeys", tags=["stop selections"])
 
@@ -85,6 +94,22 @@ def selection_out(selection: StopSelection, arrived: dict) -> SelectionOut:
     return out.model_copy(update={"window_state": state, "window_closes_at": closes_at})
 
 
+def count_requests(selections: list[StopSelection]) -> tuple[Counter, Counter]:
+    """Students to pick up (still pending) and to drop off (not missed), counted by stop ID."""
+    missed = {s.student_id for s in selections if s.pickup_status == PickupStatus.MISSED}
+    pickups = Counter(
+        s.stop_id
+        for s in selections
+        if s.type == SelectionType.PICKUP and s.pickup_status == PickupStatus.PENDING
+    )
+    dropoffs = Counter(
+        s.stop_id
+        for s in selections
+        if s.type == SelectionType.DROPOFF and s.student_id not in missed
+    )
+    return pickups, dropoffs
+
+
 @router.get("/{journey_id}/stops")
 def list_journey_stops(journey_id: uuid.UUID, db: DbSession) -> list[JourneyStop]:
     """The stops of this journey in travel order, marking the ones already passed (FR-10)."""
@@ -153,3 +178,24 @@ def choose_stop(
     db.commit()
     db.refresh(selection)
     return selection_out(selection, pickup_arrivals(journey))
+
+
+@router.get("/{journey_id}/requests")
+def list_stop_requests(
+    journey_id: uuid.UUID, db: DbSession, staff: StaffUser
+) -> list[StopRequests]:
+    """Each stop in travel order with how many students wait there or get off there (FR-35)."""
+    journey = get_journey_or_404(db, journey_id)
+    if staff.role == Role.DRIVER and journey.driver_id != staff.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This is not your journey")
+    # A student who missed the bus is no longer waiting
+    if expire_missed_pickups(db, journey, datetime.now(UTC)):
+        db.commit()
+    selections = list(
+        db.scalars(select(StopSelection).where(StopSelection.journey_id == journey.id))
+    )
+    pickups, dropoffs = count_requests(selections)
+    return [
+        StopRequests(**stop.model_dump(), pickups=pickups[stop.id], dropoffs=dropoffs[stop.id])
+        for stop in journey_stops(db, journey)
+    ]
