@@ -1,5 +1,7 @@
-import { NavLink } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
 import { homePathFor, useAuth, type Role } from '../auth/AuthContext.ts'
+
+const AUTH_PAGES = new Set(['/login', '/signup'])
 
 const ROLE_LABELS: Record<Role, string> = {
   student: 'Student',
@@ -11,6 +13,10 @@ const ROLE_LABELS: Record<Role, string> = {
 // or Sign in for guests
 function NavBar() {
   const { user, signOut } = useAuth()
+  const { pathname } = useLocation()
+
+  // Sign in and sign up are full-screen, like the prototype (#68)
+  if (AUTH_PAGES.has(pathname)) return null
 
   return (
     <header className="navbar">

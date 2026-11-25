@@ -1,6 +1,16 @@
 import 'leaflet/dist/leaflet.css'
 import { useEffect } from 'react'
-import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
+import { divIcon } from 'leaflet'
+import {
+  CircleMarker,
+  MapContainer,
+  Marker,
+  Polyline,
+  TileLayer,
+  Tooltip,
+  useMap,
+} from 'react-leaflet'
+import { busIconSvg } from '../busIcon'
 import { DIRECTION_LABELS } from '../api/journeys'
 import type { Stop } from '../api/live'
 import LiveBusSummary from './LiveBusSummary'
@@ -13,10 +23,20 @@ import { TILE_ATTRIBUTION, TILE_URL } from '../mapTiles'
 const ROUTE_CENTRE: [number, number] = [-1.955, 30.105]
 const STARTING_ZOOM = 13
 
-// Colours from the app's palette (Leaflet draws with its own styles, not our CSS)
-const NAVY = '#0f1f3d'
-const RED = '#c8102e'
+// Colours from the prototype (#68); Leaflet draws with its own styles, not our CSS
+const BLUE = '#1d4e89'
 const GREY = '#8a93a3' // a bus whose position is no longer live
+
+// The prototype's bus marker: a white disc with a coloured ring and the bus icon
+function busMarker(stale: boolean) {
+  const colour = stale ? GREY : BLUE
+  return divIcon({
+    className: 'bus-marker',
+    html: `<span style="border-color:${colour}">${busIconSvg(colour, 20)}</span>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+  })
+}
 
 // Once the stops arrive, zoom the map so the whole route fits on screen
 function FitToRoute({ stops }: { stops: Stop[] }) {
@@ -47,14 +67,20 @@ function RouteMap() {
         <FitToRoute stops={stops} />
         <Polyline
           positions={stops.map((stop) => [stop.latitude, stop.longitude])}
-          pathOptions={{ color: NAVY, weight: 4, opacity: 0.7 }}
+          pathOptions={{
+            color: BLUE,
+            weight: 7,
+            opacity: 0.9,
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
         />
         {stops.map((stop) => (
           <CircleMarker
             key={stop.sequence}
             center={[stop.latitude, stop.longitude]}
-            radius={6}
-            pathOptions={{ color: NAVY, weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+            radius={5}
+            pathOptions={{ color: BLUE, weight: 2.5, fillColor: '#ffffff', fillOpacity: 1 }}
           >
             <Tooltip>{stop.name}</Tooltip>
           </CircleMarker>
@@ -62,22 +88,16 @@ function RouteMap() {
         {buses.map((bus) => {
           const stale = secondsSinceSeen(bus, now) > STALE_AFTER_SECONDS
           return (
-            <CircleMarker
+            <Marker
               key={bus.journey_id}
-              center={[bus.latitude, bus.longitude]}
-              radius={11}
-              pathOptions={{
-                color: '#ffffff',
-                weight: 3,
-                fillColor: stale ? GREY : RED,
-                fillOpacity: 1,
-              }}
+              position={[bus.latitude, bus.longitude]}
+              icon={busMarker(stale)}
             >
-              <Tooltip permanent direction="top" offset={[0, -10]}>
+              <Tooltip permanent direction="top" offset={[0, -22]}>
                 {bus.plate_number} · {DIRECTION_LABELS[bus.direction]}
                 {stale && ' · not live'}
               </Tooltip>
-            </CircleMarker>
+            </Marker>
           )
         })}
       </MapContainer>
