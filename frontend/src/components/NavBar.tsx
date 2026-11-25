@@ -7,7 +7,8 @@ const ROLE_LABELS: Record<Role, string> = {
   admin: 'Admin',
 }
 
-// Top bar: the app name, then the user's own page and sign-out, or Sign in for guests
+// Top bar: the app name, then the user's own page (and a student's profile, #34) and sign-out,
+// or Sign in for guests
 function NavBar() {
   const { user, signOut } = useAuth()
 
@@ -18,6 +19,7 @@ function NavBar() {
         {user ? (
           <>
             <NavLink to={homePathFor(user.role)}>{ROLE_LABELS[user.role]}</NavLink>
+            {user.role === 'student' && <NavLink to="/profile">Profile</NavLink>}
             <button type="button" className="link-button" onClick={signOut}>
               Sign out
             </button>
