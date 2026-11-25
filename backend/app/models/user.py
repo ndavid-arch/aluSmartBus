@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, String, func
+from sqlalchemy import DateTime, Enum, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base, IdMixin
@@ -21,4 +21,6 @@ class User(IdMixin, Base):
     student_number: Mapped[str | None] = mapped_column(String(30))  # students only
     phone: Mapped[str | None] = mapped_column(String(30))  # drivers only
     is_active: Mapped[bool] = mapped_column(default=True)  # admins can disable drivers
+    # Students only: show initials instead of the name on the leaderboard (#34)
+    hide_name_on_leaderboard: Mapped[bool] = mapped_column(default=False, server_default=false())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

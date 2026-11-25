@@ -40,9 +40,9 @@ def client(db):
 def make_user(db):
     """Create a user with the given role and the test password."""
 
-    def _make_user(role: Role, email: str) -> User:
+    def _make_user(role: Role, email: str, full_name: str | None = None) -> User:
         user = User(
-            full_name=f"Test {role.value}",
+            full_name=full_name or f"Test {role.value}",
             email=email,
             password_hash=hash_password(TEST_PASSWORD),
             role=role,
