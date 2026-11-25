@@ -14,8 +14,7 @@ import { busIconSvg } from '../busIcon'
 import { DIRECTION_LABELS } from '../api/journeys'
 import type { Stop } from '../api/live'
 import LiveBusSummary from './LiveBusSummary'
-import { secondsSinceSeen, STALE_AFTER_SECONDS, useLiveBuses } from '../hooks/useLiveBuses'
-import { useNow } from '../hooks/useNow'
+import { secondsSinceSeen, STALE_AFTER_SECONDS, type TrackedBus } from '../hooks/useLiveBuses'
 import { useRoute } from '../hooks/useRoute'
 import { TILE_ATTRIBUTION, TILE_URL } from '../mapTiles'
 
@@ -53,15 +52,20 @@ function FitToRoute({ stops }: { stops: Stop[] }) {
   return null
 }
 
+type Props = {
+  buses: TrackedBus[] // from useLiveBuses, shared with the page so it opens one connection
+  connected: boolean
+  now: number
+  compact?: boolean // the short map at the top of the bus list (#69), without the list below it
+}
+
 // The live map: the route line, its stops, and every bus on the road (FR-09, FR-22, FR-23)
-function RouteMap() {
+function RouteMap({ buses, connected, now, compact = false }: Props) {
   const route = useRoute()
-  const { buses, connected } = useLiveBuses()
-  const now = useNow()
   const stops = route?.stops ?? []
 
   return (
-    <div className="live-map">
+    <div className={compact ? 'live-map compact' : 'live-map'}>
       <MapContainer center={ROUTE_CENTRE} zoom={STARTING_ZOOM} className="route-map">
         <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} />
         <FitToRoute stops={stops} />
@@ -101,11 +105,15 @@ function RouteMap() {
           )
         })}
       </MapContainer>
-      <p className="muted live-status">
-        {connected ? '● Live' : 'Connecting to live updates…'}
-        {connected && buses.length === 0 && ' · No bus is on the road right now'}
-      </p>
-      <LiveBusSummary buses={buses} now={now} />
+      {!compact && (
+        <>
+          <p className="muted live-status">
+            {connected ? '● Live' : 'Connecting to live updates…'}
+            {connected && buses.length === 0 && ' · No bus is on the road right now'}
+          </p>
+          <LiveBusSummary buses={buses} now={now} />
+        </>
+      )}
     </div>
   )
 }

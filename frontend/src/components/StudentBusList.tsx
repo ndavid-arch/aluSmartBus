@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { ApiError } from '../api/client'
 import { getBusStatus, type BusStatus } from '../api/buses'
 import { useBusStatus } from '../hooks/useBusStatus'
-import StatusBadge from './StatusBadge'
+import type { TrackedBus } from '../hooks/useLiveBuses'
+import BusCard from './BusCard'
 import StopPicker from './StopPicker'
 
 type MessageProps = {
@@ -38,7 +39,7 @@ function SelectionMessage({ bus, token }: MessageProps) {
     <>
       <div className="panel notice" role="status">
         <p>
-          You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map below.
+          You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map above.
         </p>
       </div>
       {token && <StopPicker journeyId={bus.journey_id} token={token} />}
@@ -48,10 +49,13 @@ function SelectionMessage({ bus, token }: MessageProps) {
 
 type Props = {
   token?: string | null
+  live: TrackedBus[] // live positions, shared with the map
+  now: number
 }
 
-// The student's bus list: every bus with its status; choosing one checks it again (FR-08, FR-48)
-function StudentBusList({ token }: Props) {
+// The student's bus list: every bus as a numbered card with its live status; choosing one checks
+// it again (FR-08, FR-48, #69)
+function StudentBusList({ token, live, now }: Props) {
   const { buses, loadError, replaceBus } = useBusStatus()
   const [selected, setSelected] = useState<BusStatus | null>(null)
   const [checkError, setCheckError] = useState('')
@@ -73,21 +77,17 @@ function StudentBusList({ token }: Props) {
 
   return (
     <>
-      <ul className="bus-list">
-        {buses.map((bus) => (
+      <ul className="bus-cards">
+        {buses.map((bus, index) => (
           <li key={bus.id}>
-            <button
-              type="button"
-              className={`panel bus-choice${selected?.id === bus.id ? ' chosen' : ''}`}
-              aria-pressed={selected?.id === bus.id}
-              onClick={() => handleSelect(bus.id)}
-            >
-              {bus.plate_number}
-              <span className="badges">
-                {bus.full && <span className="badge badge-full">Full</span>}
-                <StatusBadge availability={bus.availability} />
-              </span>
-            </button>
+            <BusCard
+              number={index + 1}
+              bus={bus}
+              live={live.find((position) => position.bus_id === bus.id)}
+              now={now}
+              chosen={selected?.id === bus.id}
+              onChoose={() => handleSelect(bus.id)}
+            />
           </li>
         ))}
       </ul>

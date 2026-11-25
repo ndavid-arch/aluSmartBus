@@ -4,6 +4,8 @@ import { homePathFor, useAuth } from '../auth/AuthContext.ts'
 import RouteMap from '../components/RouteMap.tsx'
 import SignInPrompt from '../components/SignInPrompt'
 import StudentBusList from '../components/StudentBusList'
+import { useLiveBuses } from '../hooks/useLiveBuses'
+import { useNow } from '../hooks/useNow'
 
 // The student features a guest can see but not use until they sign in
 const STUDENT_FEATURES = ['Alerts', 'Change stop', 'BOARD', 'Profile']
@@ -12,6 +14,8 @@ const STUDENT_FEATURES = ['Alerts', 'Change stop', 'BOARD', 'Profile']
 function GuestPage() {
   const { user } = useAuth()
   const [promptOpen, setPromptOpen] = useState(false)
+  const { buses, connected } = useLiveBuses() // one live connection for the map and the cards
+  const now = useNow()
 
   if (user) return <Navigate to={homePathFor(user.role)} replace />
 
@@ -22,7 +26,7 @@ function GuestPage() {
         You are browsing as a guest. <Link to="/login">Sign in</Link> to choose your stops and get
         alerts.
       </p>
-      <StudentBusList />
+      <StudentBusList live={buses} now={now} />
       <div className="guest-actions">
         {STUDENT_FEATURES.map((feature) => (
           <button
@@ -35,7 +39,7 @@ function GuestPage() {
           </button>
         ))}
       </div>
-      <RouteMap />
+      <RouteMap buses={buses} connected={connected} now={now} />
       <SignInPrompt open={promptOpen} onClose={() => setPromptOpen(false)} />
     </section>
   )
