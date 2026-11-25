@@ -292,6 +292,17 @@ main {
   color: var(--red);
 }
 
+/* Full: the bus has reached its capacity (#28) */
+.badge-full {
+  background: #fff1d6;
+  color: #8a5a00;
+}
+
+.badges {
+  display: inline-flex;
+  gap: 6px;
+}
+
 .availability {
   margin-bottom: 12px;
 }
@@ -590,4 +601,26 @@ main {
 /* The file picker opens from the label text; the input itself stays hidden */
 .photo-fallback input {
   display: none;
+}
+
+/* The driver's seat count (#28) */
+.seat-count p {
+  margin: 0 0 8px;
+}
+
+.seat-meter {
+  height: 8px;
+  border-radius: 999px;
+  background: #e3e7ee;
+  overflow: hidden;
+}
+
+.seat-meter span {
+  display: block;
+  height: 100%;
+  background: var(--navy);
+}
+
+.seat-meter span.full {
+  background: #d68a00;
 }
