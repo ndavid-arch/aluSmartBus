@@ -1,30 +1,52 @@
-"""Bus status: anyone can see which buses are running; admins and drivers change it (#14)."""
+"""Bus status: anyone can see which buses are running and how full they are (#14, #28);
+admins and drivers change whether a bus runs."""
 
 import uuid
+from typing import NamedTuple
 
 from fastapi import APIRouter
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.deps import DbSession, StaffUser
-from app.models import Availability, Bus, Journey, JourneyStatus
+from app.models import Availability, BoardingRecord, Bus, Journey, JourneyStatus
 from app.routers.buses import get_bus_or_404
 from app.schemas.buses import AvailabilityUpdate, BusStatus
 
 router = APIRouter(prefix="/buses", tags=["bus status"])
 
 
-def journeys_on_the_road(db: Session) -> dict[uuid.UUID, uuid.UUID]:
-    """Each bus that is on a journey right now, mapped to that journey's ID."""
+class Trip(NamedTuple):
+    """The journey a bus is on right now and how many students have boarded it."""
+
+    journey_id: uuid.UUID
+    boarded: int
+
+
+def journeys_on_the_road(db: Session) -> dict[uuid.UUID, Trip]:
+    """Each bus that is on a journey right now, with that journey and its boarding count."""
     rows = db.execute(
-        select(Journey.bus_id, Journey.id).where(Journey.status == JourneyStatus.ACTIVE)
+        select(Journey.bus_id, Journey.id, func.count(BoardingRecord.id))
+        .outerjoin(BoardingRecord, BoardingRecord.journey_id == Journey.id)
+        .where(Journey.status == JourneyStatus.ACTIVE)
+        .group_by(Journey.bus_id, Journey.id)
     )
-    return {bus_id: journey_id for bus_id, journey_id in rows}
+    return {bus_id: Trip(journey_id, boarded) for bus_id, journey_id, boarded in rows}
 
 
-def public_status(bus: Bus, on_the_road: dict[uuid.UUID, uuid.UUID]) -> BusStatus:
-    """A bus's public status, with the journey it is on right now (if any)."""
-    return BusStatus.model_validate(bus).model_copy(update={"journey_id": on_the_road.get(bus.id)})
+def public_status(bus: Bus, on_the_road: dict[uuid.UUID, Trip]) -> BusStatus:
+    """A bus's public status, with its current journey and seat count (if it is on the road)."""
+    shown = BusStatus.model_validate(bus)
+    trip = on_the_road.get(bus.id)
+    if trip is None:
+        return shown
+    return shown.model_copy(
+        update={
+            "journey_id": trip.journey_id,
+            "boarded": trip.boarded,
+            "full": trip.boarded >= bus.capacity,
+        }
+    )
 
 
 @router.get("")
@@ -51,4 +73,4 @@ def change_availability(
     running = changes.availability == Availability.AVAILABLE
     bus.unavailable_reason = None if running else changes.reason
     db.commit()
-    return BusStatus.model_validate(bus)
+    return public_status(bus, journeys_on_the_road(db))
