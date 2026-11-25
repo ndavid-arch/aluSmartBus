@@ -624,3 +624,37 @@ main {
 .seat-meter span.full {
   background: #d68a00;
 }
+
+/* The admin's journey table (#29) */
+.filter-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #e3e7ee;
+}
+
+.filter-tabs button {
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--navy);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-tabs button[aria-pressed='true'] {
+  background: #ffffff;
+}
+
+/* Wide tables scroll sideways on a phone instead of squeezing the page */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-scroll .table {
+  min-width: 560px;
+}
