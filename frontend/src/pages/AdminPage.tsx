@@ -7,9 +7,10 @@ import ArrivalSettings from '../components/ArrivalSettings'
 import BusesSection from '../components/BusesSection'
 import DriverList from '../components/DriverList'
 import JourneyHistory from '../components/JourneyHistory'
+import ReportSection from '../components/ReportSection'
 
-// The administrator area: all journeys (#15, #29), driver accounts (#12), buses (#13, #14)
-// and the arrival distance (#22)
+// The administrator area: all journeys (#15, #29), reports (#30), driver accounts (#12),
+// buses (#13, #14) and the arrival distance (#22)
 function AdminPage() {
   const { token } = useAuth()
   const [drivers, setDrivers] = useState<Driver[]>([])
@@ -41,6 +42,8 @@ function AdminPage() {
       <h1>Administrator</h1>
 
       <JourneyHistory token={token} />
+
+      <ReportSection token={token} />
 
       {justCreated && (
         <div className="panel notice" role="status">
