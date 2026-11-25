@@ -42,5 +42,5 @@ frontend/
 
 - React with TypeScript, built with Vite
 - React Router for the /student, /driver and /admin pages
-- Leaflet with OpenStreetMap tiles for the map
+- Leaflet for the map; its tile provider is a setting (`VITE_TILE_URL`, `VITE_TILE_ATTRIBUTION` in `.env`, see `.env.example`), OpenStreetMap by default
 - ESLint and Prettier for code quality
