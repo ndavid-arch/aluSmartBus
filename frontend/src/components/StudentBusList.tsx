@@ -5,15 +5,15 @@ import { getBusStatus, type BusStatus } from '../api/buses'
 import { useBusStatus } from '../hooks/useBusStatus'
 import type { TrackedBus } from '../hooks/useLiveBuses'
 import BusCard from './BusCard'
-import StopPicker from './StopPicker'
 
 type MessageProps = {
   bus: BusStatus
   token?: string | null // signed-in students can choose their stops; guests cannot
 }
 
-// What the student sees after choosing a bus: a warning if it is not running (FR-49, FR-50),
-// otherwise where it is and, for a bus on the road, the stops to choose from (#21)
+// What the student sees after choosing a bus that has no track screen to open: a warning if it is
+// not running (FR-49, FR-50), or that it is not on the road yet; signed-in students choosing a
+// bus on the road go to its track screen instead (#70)
 function SelectionMessage({ bus, token }: MessageProps) {
   if (bus.availability === 'unavailable') {
     return (
@@ -37,14 +37,12 @@ function SelectionMessage({ bus, token }: MessageProps) {
     )
   }
   return (
-    <>
-      <div className="panel notice" role="status">
-        <p>
-          You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map above.
-        </p>
-      </div>
-      {token && <StopPicker journeyId={bus.journey_id} token={token} />}
-    </>
+    <div className="panel notice" role="status">
+      <p>
+        You chose <strong>{bus.plate_number}</strong>. Its position is shown on the map above.
+        {!token && ' Sign in to choose your stops.'}
+      </p>
+    </div>
   )
 }
 

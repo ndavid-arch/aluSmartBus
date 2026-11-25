@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
-import type { Direction } from '../api/journeys'
+import { DIRECTION_LABELS, type Direction } from '../api/journeys'
 import { useAuth } from '../auth/AuthContext'
 import { BellIcon, CentreIcon, CloseIcon, ScanIcon } from '../components/icons'
+import BusAlerts from '../components/BusAlerts'
 import MinuteTiles from '../components/MinuteTiles'
 import PickupStatus from '../components/PickupStatus'
 import RouteMap, { type Focus } from '../components/RouteMap.tsx'
 import ScanToBoard from '../components/ScanToBoard'
-import StopPicker from '../components/StopPicker'
+import StopChooser from '../components/StopChooser'
 import StopTimeline from '../components/StopTimeline'
 import { useJourneyBus } from '../hooks/useJourneyBus'
 import { secondsSinceSeen, STALE_AFTER_SECONDS, useLiveBuses } from '../hooks/useLiveBuses'
@@ -93,8 +94,10 @@ function TrackPage() {
           <button
             type="button"
             className="icon-btn"
-            aria-label="My stops and alerts"
-            onClick={() => toggle('stops')}
+            aria-label="Alerts"
+            onClick={() =>
+              document.querySelector('.bus-alerts')?.scrollIntoView({ behavior: 'smooth' })
+            }
           >
             <BellIcon />
           </button>
@@ -147,12 +150,27 @@ function TrackPage() {
         </div>
 
         {pickup && pickup.window_state !== 'waiting' && <PickupStatus pickup={pickup} />}
-        {panel === 'stops' && <StopPicker journeyId={journeyId} token={token} />}
+        {panel === 'stops' && (
+          <StopChooser
+            journeyId={journeyId}
+            token={token}
+            busLabel={`Bus ${number}${live ? ` · ${DIRECTION_LABELS[live.direction]}` : ''}`}
+            ahead={live?.stops_ahead ?? []}
+            onClose={() => toggle(null)}
+          />
+        )}
 
         {live && live.stops_ahead.length === 0 && (
           <p className="muted">The bus is not on the route yet, so there are no times to show.</p>
         )}
         {live && <StopTimeline ahead={live.stops_ahead} now={now} myStop={myStop} />}
+
+        {/* Always here, so alerts keep popping up while this screen is open (#25, #26) */}
+        <BusAlerts
+          journeyId={journeyId}
+          token={token}
+          waiting={pickup?.window_state === 'waiting'}
+        />
       </div>
     </section>
   )
