@@ -15,6 +15,7 @@ class ProfileOut(BaseModel):
     trips: int
     points: int
     points_this_month: int
+    rank_this_month: int | None  # my place on this month's board; None with no points yet (#75)
     hide_name_on_leaderboard: bool
 
 

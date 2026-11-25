@@ -38,14 +38,25 @@ def ranked(points: Counter, names: dict[uuid.UUID, str], me: uuid.UUID) -> list[
     return entries
 
 
+def rank_of(points: Counter, student_id: uuid.UUID) -> int | None:
+    """A student's place by points, with the same shared ranks as the leaderboard (1, 2, 2, 4);
+    None for a student with no points yet."""
+    mine = points[student_id]
+    if mine == 0:
+        return None
+    return 1 + sum(1 for score in points.values() if score > mine)
+
+
 def profile_of(db: DbSession, student: User) -> ProfileOut:
     """Everything my profile page shows."""
+    this_month = points_by_student(db, start_of_this_month())
     return ProfileOut(
         full_name=student.full_name,
         usual_stop=usual_stop(db, student),
         trips=trips_by_student(db)[student.id],
         points=points_by_student(db)[student.id],
-        points_this_month=points_by_student(db, start_of_this_month())[student.id],
+        points_this_month=this_month[student.id],
+        rank_this_month=rank_of(this_month, student.id),
         hide_name_on_leaderboard=student.hide_name_on_leaderboard,
     )
 

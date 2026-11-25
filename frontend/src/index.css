@@ -1764,3 +1764,216 @@ main {
   justify-self: center;
   color: var(--faint);
 }
+
+/* ---------------------------------------------------------------------------------------
+   Profile (#75, prototype screen "Profile")
+   --------------------------------------------------------------------------------------- */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--chip);
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.avatar.large {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  background: #ffffff;
+  font-size: 22px;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: -16px -16px 0;
+  padding: 28px 18px 44px;
+  border-radius: 0 0 26px 26px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.profile-head h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.profile-head p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  opacity: 0.88;
+}
+
+/* The tiles overlap the bottom of the blue header */
+.profile-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: -34px;
+}
+
+.profile-tiles .tile {
+  min-height: 96px;
+}
+
+.profile-tiles .tile strong {
+  font-size: 32px;
+}
+
+.leaderboard-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.leaderboard-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.leaderboard-head .filter-tabs {
+  margin: 0;
+}
+
+/* 2nd, 1st, 3rd on steps of different heights */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+  margin: 16px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.podium .step {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 6px;
+  border-radius: 16px 16px 6px 6px;
+  background: var(--chip);
+  text-align: center;
+  font-size: 13px;
+}
+
+.podium .place-1 {
+  min-height: 150px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.podium .place-2 {
+  min-height: 126px;
+}
+
+.podium .place-3 {
+  min-height: 112px;
+}
+
+.podium .place {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--red);
+}
+
+.podium .place-1 .place {
+  color: #f6c9cf;
+}
+
+.podium strong {
+  font-size: 14px;
+}
+
+.podium .me {
+  outline: 3px solid var(--red);
+}
+
+.leaderboard li {
+  grid-template-columns: 2rem auto 1fr auto;
+  gap: 10px;
+}
+
+.earn h2,
+.settings h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.earn p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.switch-row span {
+  display: grid;
+}
+
+.switch-row small {
+  color: var(--faint);
+}
+
+/* An on/off switch, from a plain checkbox */
+.switch-row input {
+  appearance: none;
+  flex: 0 0 auto;
+  position: relative;
+  width: 50px;
+  height: 30px;
+  margin: 0;
+  border-radius: 15px;
+  background: #d5dbe5;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch-row input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 31, 61, 0.3);
+  transition: transform 0.15s;
+}
+
+.switch-row input:checked {
+  background: var(--green);
+}
+
+.switch-row input:checked::after {
+  transform: translateX(20px);
+}
+
+.sign-out {
+  background: #ffffff;
+  color: var(--red);
+  box-shadow: var(--shadow);
+}
+
+.podium .avatar {
+  background: #ffffff;
+}
