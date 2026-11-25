@@ -4,19 +4,21 @@ import { DIRECTION_LABELS, type Direction } from '../api/journeys'
 import { useAuth } from '../auth/AuthContext'
 import { BellIcon, CentreIcon, CloseIcon, ScanIcon } from '../components/icons'
 import BusAlerts from '../components/BusAlerts'
+import HeadToStop from '../components/HeadToStop'
 import MinuteTiles from '../components/MinuteTiles'
 import PickupStatus from '../components/PickupStatus'
 import RouteMap, { type Focus } from '../components/RouteMap.tsx'
 import ScanToBoard from '../components/ScanToBoard'
 import StopChooser from '../components/StopChooser'
 import StopTimeline from '../components/StopTimeline'
+import { useAlerts } from '../hooks/useAlerts'
 import { useJourneyBus } from '../hooks/useJourneyBus'
 import { secondsSinceSeen, STALE_AFTER_SECONDS, useLiveBuses } from '../hooks/useLiveBuses'
 import { useMySelections } from '../hooks/useMySelections'
 import { useNow } from '../hooks/useNow'
 
-// What opens inside the sheet: my stops (and alerts), or the QR scanner
-type Panel = 'stops' | 'board' | null
+// What opens inside the sheet: my stops, the QR scanner, or 'head to your stop' (#72)
+type Panel = 'stops' | 'board' | 'alerts' | null
 
 // Where the bus is heading, and where it came from
 const DESTINATIONS: Record<Direction, [string, string]> = {
@@ -41,6 +43,8 @@ function TrackPage() {
   const { bus, number, ended } = useJourneyBus(journeyId)
   const { pickup, reload } = useMySelections(journeyId, token ?? '')
   const [focusKey, setFocusKey] = useState(1)
+  // Checked once here for the pop-ups and the alerts view (#25, #72)
+  const { permission, alerts, latest, enable } = useAlerts(journeyId, token ?? '')
 
   const live = buses.find((position) => position.journey_id === journeyId)
   const age = live ? secondsSinceSeen(live, now) : null
@@ -95,9 +99,7 @@ function TrackPage() {
             type="button"
             className="icon-btn"
             aria-label="Alerts"
-            onClick={() =>
-              document.querySelector('.bus-alerts')?.scrollIntoView({ behavior: 'smooth' })
-            }
+            onClick={() => toggle('alerts')}
           >
             <BellIcon />
           </button>
@@ -114,62 +116,84 @@ function TrackPage() {
       </div>
 
       <div className="sheet">
-        <div className="track-head">
-          <span>
-            <strong>{destination || bus?.plate_number}</strong>
-            <small>
-              {bus?.plate_number}
-              {origin && ` · from ${origin}`}
-            </small>
-          </span>
-          <button type="button" className="btn btn-blue board-btn" onClick={() => toggle('board')}>
-            <ScanIcon />
-            BOARD
-          </button>
-        </div>
-
-        {panel === 'board' && <ScanToBoard token={token} />}
-
-        {live && (
-          <MinuteTiles
-            ahead={live.stops_ahead}
-            myStop={pickup?.stop.name}
-            onChooseStop={() => toggle('stops')}
-          />
-        )}
-
-        <div className="track-chips">
-          {bus?.boarded != null && (
-            <span className="chip">
-              {bus.boarded}/{bus.capacity} seats{bus.full && ' · Full'}
-            </span>
-          )}
-          <button type="button" className="chip" onClick={() => toggle('stops')}>
-            {pickup ? 'Change stop' : 'Choose my stop'}
-          </button>
-        </div>
-
-        {pickup && pickup.window_state !== 'waiting' && <PickupStatus pickup={pickup} />}
-        {panel === 'stops' && (
-          <StopChooser
-            journeyId={journeyId}
-            token={token}
-            busLabel={`Bus ${number}${live ? ` · ${DIRECTION_LABELS[live.direction]}` : ''}`}
+        {panel === 'alerts' ? (
+          <HeadToStop
+            number={number}
+            pickup={pickup}
             ahead={live?.stops_ahead ?? []}
-            onClose={() => toggle(null)}
+            bus={bus}
+            alerts={alerts}
+            now={now}
+            onBack={() => toggle(null)}
           />
+        ) : (
+          <>
+            <div className="track-head">
+              <span>
+                <strong>{destination || bus?.plate_number}</strong>
+                <small>
+                  {bus?.plate_number}
+                  {origin && ` · from ${origin}`}
+                </small>
+              </span>
+              <button
+                type="button"
+                className="btn btn-blue board-btn"
+                onClick={() => toggle('board')}
+              >
+                <ScanIcon />
+                BOARD
+              </button>
+            </div>
+
+            {panel === 'board' && <ScanToBoard token={token} />}
+
+            {live && (
+              <MinuteTiles
+                ahead={live.stops_ahead}
+                myStop={pickup?.stop.name}
+                onChooseStop={() => toggle('stops')}
+              />
+            )}
+
+            <div className="track-chips">
+              {bus?.boarded != null && (
+                <span className="chip">
+                  {bus.boarded}/{bus.capacity} seats{bus.full && ' · Full'}
+                </span>
+              )}
+              <button type="button" className="chip" onClick={() => toggle('stops')}>
+                {pickup ? 'Change stop' : 'Choose my stop'}
+              </button>
+            </div>
+
+            {pickup && pickup.window_state !== 'waiting' && <PickupStatus pickup={pickup} />}
+            {panel === 'stops' && (
+              <StopChooser
+                journeyId={journeyId}
+                token={token}
+                busLabel={`Bus ${number}${live ? ` · ${DIRECTION_LABELS[live.direction]}` : ''}`}
+                ahead={live?.stops_ahead ?? []}
+                onClose={() => toggle(null)}
+              />
+            )}
+
+            {live && live.stops_ahead.length === 0 && (
+              <p className="muted">
+                The bus is not on the route yet, so there are no times to show.
+              </p>
+            )}
+            {live && <StopTimeline ahead={live.stops_ahead} now={now} myStop={myStop} />}
+          </>
         )}
 
-        {live && live.stops_ahead.length === 0 && (
-          <p className="muted">The bus is not on the route yet, so there are no times to show.</p>
-        )}
-        {live && <StopTimeline ahead={live.stops_ahead} now={now} myStop={myStop} />}
-
-        {/* Always here, so alerts keep popping up while this screen is open (#25, #26) */}
+        {/* Alerts are checked by this page, so they keep popping up whatever is open (#25, #26) */}
         <BusAlerts
-          journeyId={journeyId}
-          token={token}
-          waiting={pickup?.window_state === 'waiting'}
+          permission={permission}
+          latest={latest}
+          enable={enable}
+          // the alerts view already lists every alert, so the banner is not repeated there
+          waiting={pickup?.window_state === 'waiting' && panel !== 'alerts'}
         />
       </div>
     </section>

@@ -1,8 +1,10 @@
-import { useAlerts, type AlertPermission } from '../hooks/useAlerts'
+import type { Alert } from '../api/notifications'
+import type { AlertPermission } from '../hooks/useAlerts'
 
 type Props = {
-  journeyId: string
-  token: string
+  permission: AlertPermission // from useAlerts, called once by the track screen
+  latest: Alert | null
+  enable: () => void
   waiting: boolean // my pickup is chosen and the bus has not reached it yet
 }
 
@@ -16,9 +18,7 @@ const PERMISSION_MESSAGES: Record<Exclude<AlertPermission, 'default'>, string> =
 
 // Lets the student turn on their bus alerts and shows the latest 'bus is coming' one on the page
 // (#25, #26, FR-44 to FR-47); alerts pop up while the app is open, even in another tab
-function BusAlerts({ journeyId, token, waiting }: Props) {
-  const { permission, latest, enable } = useAlerts(journeyId, token)
-
+function BusAlerts({ permission, latest, enable, waiting }: Props) {
   return (
     <div className="bus-alerts">
       {permission === 'default' ? (
