@@ -1,15 +1,18 @@
 import { apiFetch } from './client'
 import type { Direction } from './journeys'
 
-// One completed journey in the report and how many students boarded it
+// One completed journey in the report: how many students boarded it and missed it
 export type ReportJourney = {
   id: string
+  bus_id: string
   plate_number: string
+  capacity: number // seats on the bus, to show when it ran full (#78)
   driver_name: string
   direction: Direction
   started_at: string
   ended_at: string | null
   boarded: number
+  missed: number // chose a pickup on this journey and missed the bus (#78)
 }
 
 // How much one stop was used in the period

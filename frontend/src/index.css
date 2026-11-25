@@ -456,7 +456,7 @@ main {
   background: #d68a00;
 }
 
-/* The admin's journey table (#29) */
+/* Two or three tabs in a grey track (leaderboard period, driving direction) */
 .filter-tabs {
   display: inline-flex;
   gap: 4px;
@@ -488,48 +488,6 @@ main {
 
 .table-scroll .table {
   min-width: 560px;
-}
-
-/* The admin report (#30) */
-.report-period {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 12px;
-}
-
-.report-period label {
-  display: grid;
-  gap: 4px;
-  font-weight: 800;
-}
-
-.report-tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.report-tile {
-  display: grid;
-  gap: 4px;
-}
-
-.report-tile strong {
-  font-size: 1.8rem;
-  color: var(--navy);
-}
-
-.demand-cell {
-  width: 30%;
-}
-
-.demand-bar {
-  display: block;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--navy);
 }
 
 /* Profile and leaderboard (#34) */
@@ -2557,5 +2515,233 @@ main:has(.admin-shell) {
   .journey-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* --- Admin journeys and reports (#78) ---------------------------------------------------- */
+
+.status-pill.full {
+  background: #fff1d6;
+  color: #6b4600;
+}
+.section-title,
+.completed-head h2 {
+  margin: 8px 0 0;
+  font-size: 17px;
+}
+.completed-head {
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+.completed-head .muted {
+  font-size: 13px;
+}
+
+/* A live journey: title and live pill, four facts, then the stops strip */
+.live-journey {
+  gap: 18px;
+}
+.live-journey-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.live-journey-head > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.live-journey-head h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.live-journey dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  margin: 0;
+  font-size: 13px;
+}
+.live-journey dl div {
+  display: flex;
+  gap: 6px;
+}
+.live-journey dt {
+  color: var(--muted);
+}
+.live-journey dd {
+  margin: 0;
+  font-weight: 800;
+  color: var(--ink);
+}
+.stop-strip {
+  --filled: 0;
+  position: relative;
+  display: flex;
+  min-width: 640px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The grey line between the first and last dots, and the blue part up to the bus */
+.stop-strip::before,
+.stop-strip::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: calc(50% / var(--stops, 12));
+  height: 3px;
+  border-radius: 2px;
+}
+.stop-strip::before {
+  right: calc(50% / var(--stops, 12));
+  background: #dde2ea;
+}
+.stop-strip::after {
+  width: calc((100% - 100% / var(--stops, 12)) * var(--filled));
+  background: var(--navy);
+}
+.stop-strip li {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.strip-dot {
+  width: 12px;
+  height: 12px;
+  margin: 7px 0;
+  box-sizing: border-box;
+  border: 2px solid #c5ccd8;
+  border-radius: 50%;
+  background: #fff;
+}
+.stop-strip li.passed .strip-dot {
+  border-color: var(--navy);
+  background: var(--navy);
+}
+.strip-bus {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--red);
+  color: #fff;
+}
+.strip-name {
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--muted);
+}
+.stop-strip li.next .strip-name {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* Date pickers beside the title (reports) or under "Completed" (pick dates) */
+.date-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+.date-range label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.date-range input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #c5ccd8;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+.date-range .outline-btn {
+  width: auto;
+  padding: 0 16px;
+  background: #fff;
+}
+
+/* The four headline numbers */
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.stat-tile {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid #dde2ea;
+  border-radius: 14px;
+  background: #fff;
+}
+.stat-tile span {
+  color: #3d4757;
+  font-size: 13px;
+  font-weight: 700;
+}
+.stat-tile strong {
+  font-size: 30px;
+  color: var(--ink);
+}
+.stat-tile small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Boardings by stop as bars */
+.admin-card h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 44px;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+}
+.bar-row > span:first-child {
+  font-weight: 700;
+}
+.bar-track {
+  height: 18px;
+  border-radius: 4px;
+  background: var(--line);
+}
+.bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--navy);
+}
+.bar-row b {
+  text-align: right;
+}
+
+@media (max-width: 800px) {
+  .stat-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat-tile strong {
+    font-size: 24px;
+  }
+  .bar-row {
+    grid-template-columns: 110px 1fr 32px;
+    gap: 10px;
   }
 }

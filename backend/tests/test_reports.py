@@ -104,6 +104,12 @@ def test_the_report_counts_completed_journeys_and_boardings(client, admin, busy_
     assert row["ended_at"] is not None
 
 
+def test_each_journey_shows_its_missed_pickups_and_seats(client, admin, busy_morning, bus):
+    """The journeys table shows who missed the bus and whether it ran full (#78)."""
+    [row] = report(client, admin).json()["journeys"]
+    assert (row["missed"], row["capacity"], row["bus_id"]) == (1, bus["capacity"], bus["id"])
+
+
 def test_occupancy_is_boardings_over_seats(client, admin, busy_morning, bus):
     """2 students on a 30-seat bus."""
     assert report(client, admin).json()["average_occupancy"] == round(2 / bus["capacity"], 3)
