@@ -1,7 +1,9 @@
 """Creates the FastAPI app and registers its routers."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import get_settings
 from app.routers import (
     arrivals,
     auth,
@@ -20,6 +22,14 @@ from app.routers import (
 )
 
 app = FastAPI(title="ALU SmartBus API")
+# The deployed website lives on another address than the API, so the browser must be told it may
+# call it (#32); only the addresses in CORS_ORIGINS are allowed
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_settings().allowed_origins,
+    allow_methods=["*"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(drivers.router)

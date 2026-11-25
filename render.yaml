@@ -1,0 +1,44 @@
+# Render Blueprint (#32): the API and the website, both on Render's free plan.
+# The database is on Neon (Render's free database is deleted after 30 days); see docs/deployment.md.
+# Values marked "sync: false" are typed in once in the Render dashboard, never written here.
+services:
+  # The FastAPI backend
+  - type: web
+    name: alusmartbus-api
+    runtime: python
+    plan: free
+    region: frankfurt # the closest Render region to Kigali
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Bring the database up to date and make sure the route exists, then start the API
+    startCommand: alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true # every merge to main is deployed
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Neon's connection string
+      - key: SECRET_KEY
+        generateValue: true # Render makes a long random key
+      - key: CORS_ORIGINS
+        sync: false # the website's address, e.g. https://alusmartbus.onrender.com
+
+  # The React website, built once per deploy and served as plain files
+  - type: web
+    name: alusmartbus
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    # Every page address (/student, /admin/buses…) is handled by the app itself
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false # the API's address, e.g. https://alusmartbus-api.onrender.com
+      - key: VITE_TILE_URL
+        value: https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png
+      - key: VITE_TILE_ATTRIBUTION
+        value: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

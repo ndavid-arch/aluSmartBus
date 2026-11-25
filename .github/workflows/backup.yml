@@ -1,0 +1,34 @@
+# Nightly database backup (#32): a full copy of the Neon database, encrypted with a passphrase
+# (the repository is public, so an unencrypted copy would expose students' accounts), kept 30 days.
+# Needs two repository secrets: DATABASE_URL (Neon's connection string) and BACKUP_PASSPHRASE.
+# Restore steps are in docs/deployment.md.
+name: Database backup
+
+on:
+  schedule:
+    - cron: "17 0 * * *" # every night at 02:17 Kigali time (00:17 UTC)
+  workflow_dispatch: # a "Run workflow" button for a backup on demand
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump and encrypt the database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          # pg_dump 18 can copy a Postgres 17 or 18 database (an older pg_dump refuses a newer server)
+          docker run --rm postgres:18 pg_dump "$DATABASE_URL" --format=custom --no-owner \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 \
+                  --passphrase "$BACKUP_PASSPHRASE" --output smartbus.dump.gpg
+          test -s smartbus.dump.gpg # fail loudly if the dump came out empty
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartbus-backup-${{ github.run_number }}
+          path: smartbus.dump.gpg
+          retention-days: 30

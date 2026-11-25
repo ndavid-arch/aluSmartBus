@@ -63,7 +63,10 @@ aluSmartBus/
 
 ## Getting started
 
-> Set-up instructions will be added in Sprint 0 when the backend and front end are scaffolded.
+- **Run it on your computer:** [backend/README.md](backend/README.md) (API and database) and
+  [frontend/README.md](frontend/README.md) (website).
+- **Run it online, environment variables, backups and maintenance:**
+  [docs/deployment.md](docs/deployment.md).
 
 ## How the work is managed
 
