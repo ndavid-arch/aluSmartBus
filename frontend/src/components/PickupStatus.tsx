@@ -1,14 +1,9 @@
 import type { Selection } from '../api/selections'
 import { useNow } from '../hooks/useNow'
+import { timeLeft } from '../time'
 
 type Props = {
   pickup: Selection
-}
-
-// "2:31" left until the boarding window closes; never below 0:00
-function timeLeft(closesAt: string, now: number): string {
-  const seconds = Math.max(0, Math.round((Date.parse(closesAt) - now) / 1000))
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
 
 // Tells the student where their pickup stands, so a missed one looks different

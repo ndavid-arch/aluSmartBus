@@ -1470,3 +1470,104 @@ main {
   margin: auto 16px 0;
   padding-top: 12px;
 }
+
+/* ---------------------------------------------------------------------------------------
+   Head to your stop (#72, prototype screen "Alerts")
+   --------------------------------------------------------------------------------------- */
+
+.head-to-stop {
+  display: grid;
+  gap: 12px;
+}
+
+.head-to-stop h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 26px;
+}
+
+.arrives {
+  margin: -6px 0 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.arrives strong {
+  color: var(--red);
+}
+
+/* The 10-minute run-up to my stop */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background: #f6c9cf;
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--red);
+}
+
+.progress-label {
+  margin: -6px 0 0;
+  text-align: right;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* "3:00" is wider than a single number */
+.tile.countdown strong {
+  font-size: 36px;
+  line-height: 48px;
+}
+
+.tile.urgent strong {
+  color: var(--red);
+}
+
+.trip-alerts {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--field);
+}
+
+.trip-alerts h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.trip-alerts ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.trip-alerts li span {
+  display: inline-block;
+  width: 18px;
+}
+
+.trip-alerts .sent {
+  color: var(--muted);
+}
+
+.trip-alerts .now {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.trip-alerts .later {
+  color: var(--disabled);
+}
+
+.trip-alerts .missed {
+  color: var(--red);
+}

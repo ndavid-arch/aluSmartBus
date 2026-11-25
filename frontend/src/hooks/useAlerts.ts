@@ -41,15 +41,15 @@ async function notify(alert: Alert) {
 }
 
 // Checks for new alerts every 10 s while the page is open and pops up the ones not yet shown;
-// also gives the latest alert, so the page can show it even without permission (#25)
+// also gives this trip's alerts, so the page can show them even without permission (#25, #72)
 export function useAlerts(journeyId: string, token: string) {
   const [permission, setPermission] = useState<AlertPermission>(currentPermission)
-  const [latest, setLatest] = useState<Alert | null>(null)
+  const [alerts, setAlerts] = useState<Alert[]>([])
 
   const check = useCallback(() => {
     listMyAlerts(journeyId, token)
       .then((alerts) => {
-        setLatest(alerts.at(-1) ?? null)
+        setAlerts(alerts)
         const shown = loadShown()
         const fresh = alerts.filter((alert) => !shown.has(alert.id))
         if (fresh.length === 0) return
@@ -70,5 +70,5 @@ export function useAlerts(journeyId: string, token: string) {
     setPermission(await Notification.requestPermission())
   }, [])
 
-  return { permission, latest, enable }
+  return { permission, alerts, latest: alerts.at(-1) ?? null, enable }
 }
