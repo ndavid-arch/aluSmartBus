@@ -47,6 +47,7 @@ export function useAlerts(journeyId: string, token: string) {
   const [alerts, setAlerts] = useState<Alert[]>([])
 
   const check = useCallback(() => {
+    if (!token) return // a guest gets no alerts (#74)
     listMyAlerts(journeyId, token)
       .then((alerts) => {
         setAlerts(alerts)

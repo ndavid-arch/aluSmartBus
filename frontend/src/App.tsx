@@ -21,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/guest" element={<GuestPage />} />
+          <Route path="/guest/track/:journeyId" element={<TrackPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route

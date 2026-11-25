@@ -24,7 +24,7 @@ function StudentPage() {
       <div className="student-body">
         {token && <MyStopBar token={token} journeyId={buses[0]?.journey_id} />}
         <h1 className="visually-hidden">Choose your bus</h1>
-        <StudentBusList token={token} live={buses} now={now} />
+        <StudentBusList token={token} live={buses} now={now} trackPath="/student/track" />
         {token && (
           <button type="button" className="btn btn-blue" onClick={() => setScanning(true)}>
             <ScanIcon />

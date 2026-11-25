@@ -1,46 +1,36 @@
-import { useState } from 'react'
 import { Link, Navigate } from 'react-router'
 import { homePathFor, useAuth } from '../auth/AuthContext.ts'
 import RouteMap from '../components/RouteMap.tsx'
-import SignInPrompt from '../components/SignInPrompt'
 import StudentBusList from '../components/StudentBusList'
 import { useLiveBuses } from '../hooks/useLiveBuses'
 import { useNow } from '../hooks/useNow'
 
-// The student features a guest can see but not use until they sign in
-const STUDENT_FEATURES = ['Alerts', 'Change stop', 'BOARD', 'Profile']
-
-// What anyone sees before signing in: the buses and the map (FR-60, FR-61)
+// What anyone sees before signing in (FR-60, FR-61), like the prototype's "BusesGuest" (#74):
+// the live map, a bar inviting them to sign in, and the numbered bus cards
 function GuestPage() {
   const { user } = useAuth()
-  const [promptOpen, setPromptOpen] = useState(false)
   const { buses, connected } = useLiveBuses() // one live connection for the map and the cards
   const now = useNow()
 
   if (user) return <Navigate to={homePathFor(user.role)} replace />
 
   return (
-    <section className="page">
-      <h1>Buses</h1>
-      <p className="muted">
-        You are browsing as a guest. <Link to="/login">Sign in</Link> to choose your stops and get
-        alerts.
-      </p>
-      <StudentBusList live={buses} now={now} />
-      <div className="guest-actions">
-        {STUDENT_FEATURES.map((feature) => (
-          <button
-            key={feature}
-            type="button"
-            className="small-button"
-            onClick={() => setPromptOpen(true)}
-          >
-            {feature}
-          </button>
-        ))}
+    <section className="page student">
+      <div className="map-top">
+        <RouteMap buses={buses} connected={connected} now={now} variant="compact" />
       </div>
-      <RouteMap buses={buses} connected={connected} now={now} />
-      <SignInPrompt open={promptOpen} onClose={() => setPromptOpen(false)} />
+      <div className="student-body">
+        <div className="my-stop guest-bar">
+          <span>
+            <strong>Sign in to get alerts for your stop</strong>
+          </span>
+          <Link className="chip" to="/login">
+            Sign in
+          </Link>
+        </div>
+        <h1 className="visually-hidden">Buses</h1>
+        <StudentBusList live={buses} now={now} trackPath="/guest/track" />
+      </div>
     </section>
   )
 }

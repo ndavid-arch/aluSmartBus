@@ -6,7 +6,15 @@ type Props = {
   onClose: () => void
 }
 
-// "Sign in to get more": shown when a guest taps a feature that needs an account (FR-61)
+// What signing in unlocks, as the prototype lists it
+const UNLOCKS = [
+  'Alerts before the bus reaches your stop',
+  'Scan to board and save your trips',
+  'Your profile and contributions',
+]
+
+// "Sign in to get more": a sheet from the bottom when a guest taps a feature that needs an
+// account (FR-61, #74, prototype "GuestPrompt")
 function SignInPrompt({ open, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
@@ -32,18 +40,26 @@ function SignInPrompt({ open, onClose }: Props) {
       onClick={handleClick}
     >
       <div className="prompt-body">
-        <button type="button" className="prompt-close" aria-label="Close" onClick={onClose}>
-          ×
-        </button>
-        <h2 id="prompt-title">Sign in to get more</h2>
-        <p>
-          With your ALU student account you can choose your stops, get an alert when the bus is near
-          and board with the QR code.
-        </p>
-        <Link to="/login" className="button">
+        <h2 id="prompt-title">
+          Sign in to
+          <br />
+          get more
+        </h2>
+        <p>You can watch the bus without an account. Sign in with your ALU email to unlock:</p>
+        <ul className="unlocks">
+          {UNLOCKS.map((unlock) => (
+            <li key={unlock}>
+              <span aria-hidden="true">✓</span>
+              {unlock}
+            </li>
+          ))}
+        </ul>
+        <Link to="/login" className="btn btn-primary">
           Sign in
         </Link>
-        <Link to="/signup">Create an account</Link>
+        <Link to="/signup" className="prompt-link">
+          New student? Create an account
+        </Link>
         <button type="button" className="link-button" onClick={onClose}>
           Not now
         </button>

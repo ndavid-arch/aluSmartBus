@@ -426,66 +426,6 @@ main {
   font-size: 0.9rem;
 }
 
-/* Guest view */
-.guest-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 8px;
-}
-
-/* The "Sign in to get more" box; padding sits on the inner box so outside clicks reach the dialog */
-.prompt {
-  width: min(400px, calc(100% - 32px));
-  padding: 0;
-  border: 0;
-  border-radius: 16px;
-}
-
-.prompt::backdrop {
-  background: rgb(15 31 61 / 55%);
-}
-
-.prompt-body {
-  position: relative;
-  display: grid;
-  gap: 12px;
-  padding: 24px;
-  text-align: center;
-}
-
-.prompt-body h2,
-.prompt-body p {
-  margin: 0;
-}
-
-.prompt-body a {
-  color: var(--red);
-  font-weight: 800;
-}
-
-.prompt-body a.button {
-  display: block;
-  padding: 12px;
-  border-radius: 10px;
-  background: var(--red);
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-.prompt-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  background: none;
-  color: var(--navy);
-  font-size: 1.6rem;
-  cursor: pointer;
-}
-
 /* Location sharing on the driver page */
 .sharing p {
   margin: 0;
@@ -1742,4 +1682,85 @@ main {
 .boarded .btn {
   position: relative;
   margin-top: auto;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Guest screens (#74, prototype "BusesGuest", "TrackGuest", "GuestPrompt")
+   --------------------------------------------------------------------------------------- */
+
+.guest-bar {
+  grid-template-columns: 1fr auto;
+  background: var(--red);
+}
+
+/* "Sign in to get more" rises from the bottom of the screen */
+.prompt {
+  width: 100%;
+  max-width: 520px;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -4px 18px rgba(15, 31, 61, 0.18);
+}
+
+.prompt::backdrop {
+  background: rgba(15, 31, 61, 0.45);
+}
+
+.prompt-body {
+  display: grid;
+  gap: 14px;
+  padding: 22px 22px 28px;
+}
+
+.prompt-body h2 {
+  margin: 0;
+  font-size: 28px;
+  color: var(--ink);
+}
+
+.prompt-body p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.unlocks {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 800;
+}
+
+.unlocks li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.unlocks span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--chip);
+  color: var(--navy);
+}
+
+.prompt-link {
+  justify-self: center;
+  color: var(--navy);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.prompt-body .link-button {
+  justify-self: center;
+  color: var(--faint);
 }
