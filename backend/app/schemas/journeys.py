@@ -42,5 +42,6 @@ class JourneyOut(BaseModel):
     direction: Direction
     status: JourneyStatus
     started_at: datetime
+    ended_at: datetime | None  # None while the journey is still on the road (#29)
     bus: JourneyBus
     driver: JourneyDriver

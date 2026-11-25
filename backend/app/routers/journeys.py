@@ -1,13 +1,15 @@
-"""Drivers start journeys; drivers and admins see which buses are on the road (#15)."""
+"""Drivers start journeys; drivers and admins see which buses are on the road (#15);
+admins also see every journey, active and completed (#29)."""
 
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, status
 from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.deps import DbSession, DriverUser, StaffUser
+from app.core.deps import AdminUser, DbSession, DriverUser, StaffUser
 from app.live import journey_ended_message, live_updates
 from app.models import Availability, Journey, JourneyStatus, LocationUpdate, Route
 from app.routers.buses import get_bus_or_404
@@ -84,6 +86,25 @@ def start_journey(choice: JourneyStart, db: DbSession, driver: DriverUser) -> Jo
         raise HTTPException(status.HTTP_409_CONFLICT, detail=BUS_ALREADY_RUNNING) from None
     db.refresh(journey)
     return JourneyOut.model_validate(journey)
+
+
+# How many journeys the admin list shows at most; enough for weeks of trips on one screen
+MAX_LISTED = 200
+
+
+@router.get("")
+def list_journeys(
+    db: DbSession,
+    _admin: AdminUser,
+    journey_status: Annotated[JourneyStatus | None, Query(alias="status")] = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_LISTED)] = 50,
+) -> list[JourneyOut]:
+    """Active and completed journeys with bus, driver, direction and times, newest first;
+    ?status=active or ?status=completed shows only those (FR-55)."""
+    query = select(Journey).order_by(Journey.started_at.desc()).limit(limit)
+    if journey_status is not None:
+        query = query.where(Journey.status == journey_status)
+    return [JourneyOut.model_validate(journey) for journey in db.scalars(query)]
 
 
 @router.get("/active")

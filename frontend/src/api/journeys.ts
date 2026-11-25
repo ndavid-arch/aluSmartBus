@@ -14,6 +14,7 @@ export type Journey = {
   direction: Direction
   status: 'active' | 'completed'
   started_at: string
+  ended_at: string | null // null while it is still on the road
   bus: { id: string; plate_number: string }
   driver: { id: string; full_name: string }
 }
@@ -30,6 +31,15 @@ export function startJourney(busId: string, direction: Direction, token: string)
 // Every journey on the road right now (drivers and admins)
 export function listActiveJourneys(token: string): Promise<Journey[]> {
   return apiFetch<Journey[]>('/journeys/active', {}, token)
+}
+
+// Which journeys the admin list shows (#29)
+export type JourneyFilter = 'all' | Journey['status']
+
+// Active and completed journeys, newest first (admins only)
+export function listJourneys(filter: JourneyFilter, token: string): Promise<Journey[]> {
+  const query = filter === 'all' ? '' : `?status=${filter}`
+  return apiFetch<Journey[]>(`/journeys${query}`, {}, token)
 }
 
 // One GPS reading from the driver's phone
