@@ -17,7 +17,12 @@ export function useQrScanner(
         scanner.stop() // one code is enough: stop before the next frame reads it again
         onCode(result.data)
       },
-      { preferredCamera: 'environment', highlightScanRegion: true, returnDetailedScanResult: true },
+      // The scan screen draws its own frame, so the library's yellow one is left off
+      {
+        preferredCamera: 'environment',
+        highlightScanRegion: false,
+        returnDetailedScanResult: true,
+      },
     )
     scanner
       .start()

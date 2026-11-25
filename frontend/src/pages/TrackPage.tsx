@@ -155,7 +155,7 @@ function TrackPage() {
             {token && panel === 'board' && (
               <ScanScreen
                 token={token}
-                label={`${number} · ${destination}`}
+                label={destination ? `Bus ${number} · ${destination}` : `Bus ${number}`} // no dangling dot before the first position
                 stopName={pickup?.stop.name}
                 onClose={() => toggle(null)}
               />
