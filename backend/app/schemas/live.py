@@ -29,6 +29,9 @@ class RouteOut(BaseModel):
 
     name: str
     stops: list[StopOut]
+    # The line to draw, as (latitude, longitude) points: along the roads once the road path is
+    # saved (#79), otherwise straight from stop to stop
+    path: list[tuple[float, float]] = []
 
 
 class StopAhead(BaseModel):

@@ -94,7 +94,7 @@ function RouteMap({ buses, connected, now, variant = 'full', focus }: Props) {
         <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} />
         {focus ? <CentreOn focus={focus} /> : <FitToRoute stops={stops} />}
         <Polyline
-          positions={stops.map((stop) => [stop.latitude, stop.longitude])}
+          positions={route?.path ?? []} // along the roads once the path is saved (#79)
           pathOptions={{
             color: BLUE,
             weight: 7,

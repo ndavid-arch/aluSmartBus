@@ -85,3 +85,14 @@ backend/
 ```
 
 Each folder has an empty `__init__.py` so Python treats it as a package.
+## The route along the real roads (#79)
+
+The map draws the road path saved in `app/data/road_path.json`. To fetch it (once, needs internet):
+
+```bash
+python -m app.road_path
+```
+
+It prints any stop more than 60 m from the path. If the engine took a different road there, add a
+point the bus really passes to `VIA_POINTS` in `app/road_path.py` and run it again. Without the
+file, the map joins the stops with straight lines.
