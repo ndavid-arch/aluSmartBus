@@ -7,7 +7,8 @@ type Props = {
 }
 
 // How many students have scanned onto my bus, and a Full badge at capacity (#28, FR-53, FR-54);
-// Full is only information: the app never stops anyone boarding, the driver decides
+// Full is only information: the app never stops anyone boarding, the driver decides; drawn as
+// the prototype's seats tile (#76)
 function SeatCount({ busId }: Props) {
   const [bus, setBus] = useState<BusStatus | null>(null)
 
@@ -25,19 +26,13 @@ function SeatCount({ busId }: Props) {
   const taken = Math.min(bus.boarded / bus.capacity, 1)
 
   return (
-    <div className="panel seat-count" role="status">
-      <p>
-        <strong>{bus.boarded}</strong> of {bus.capacity} seats taken{' '}
-        {bus.full && <span className="badge badge-full">Full</span>}
-      </p>
+    <div className={`tile seat-tile${bus.full ? ' full' : ''}`} role="status">
+      <strong>{bus.boarded}</strong>
+      <span>of {bus.capacity} seats</span>
       <div className="seat-meter" aria-hidden="true">
-        <span style={{ width: `${taken * 100}%` }} className={bus.full ? 'full' : ''} />
+        <span style={{ width: `${taken * 100}%` }} />
       </div>
-      {bus.full && (
-        <p className="muted">
-          The bus has reached its capacity. You decide whether to take more passengers.
-        </p>
-      )}
+      {bus.full && <span className="badge badge-full">Full</span>}
     </div>
   )
 }
