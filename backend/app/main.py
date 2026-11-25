@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.routers import (
     arrivals,
     auth,
+    boardings,
     bus_status,
     buses,
     drivers,
@@ -28,3 +29,4 @@ app.include_router(live.router)
 app.include_router(selections.router)
 app.include_router(arrivals.router)
 app.include_router(notifications.router)
+app.include_router(boardings.router)
