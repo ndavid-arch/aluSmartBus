@@ -2,6 +2,7 @@ import { useState, type SubmitEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { ApiError } from '../api/client.ts'
 import { homePathFor, useAuth } from '../auth/AuthContext.ts'
+import AuthLayout from '../components/AuthLayout'
 
 // Matches the backend rule, so the browser can warn before the form is sent
 const MIN_PASSWORD_LENGTH = 8
@@ -34,38 +35,43 @@ function SignUpPage() {
   }
 
   return (
-    <section className="login">
-      <h1>Create your account</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="full-name">Full name</label>
-        <input
-          id="full-name"
-          autoComplete="name"
-          required
-          value={fullName}
-          onChange={(event) => setFullName(event.target.value)}
-        />
-        <label htmlFor="email">ALU student email</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder="name@alustudent.com"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={MIN_PASSWORD_LENGTH}
-          required
-          aria-describedby="password-hint"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+    <AuthLayout>
+      <form className="form" onSubmit={handleSubmit}>
+        <label htmlFor="full-name">
+          Full name
+          <input
+            id="full-name"
+            autoComplete="name"
+            required
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+          />
+        </label>
+        <label htmlFor="email">
+          ALU student email
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@alustudent.com"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+        <label htmlFor="password">
+          Password
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            required
+            aria-describedby="password-hint"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </label>
         <p id="password-hint" className="hint">
           At least {MIN_PASSWORD_LENGTH} characters.
         </p>
@@ -78,11 +84,15 @@ function SignUpPage() {
           {submitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>
-      <p className="auth-switch">
-        Already have an account? <Link to="/login">Sign in</Link>
-      </p>
-      <p className="hint">Drivers and staff: your account is created by an administrator.</p>
-    </section>
+      <div className="auth-links">
+        <span className="muted">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </span>
+        <span className="hint">
+          Drivers and staff: your account is created by an administrator.
+        </span>
+      </div>
+    </AuthLayout>
   )
 }
 

@@ -1,11 +1,32 @@
 :root {
-  --navy: #0f1f3d;
-  --red: #c8102e;
-  --bg: #f5f7fa;
-  --text: #1a1a1a;
-  font-family: system-ui, sans-serif;
+  /* The prototype's look (#68): every screen uses these, never raw colours */
+  --navy: #1d4e89; /* primary blue: buttons, headers, the route */
+  --ink: #14213d; /* text */
+  --red: #c8102e; /* ALU red: main actions, my stop, alerts */
+  --green: #1e7a46;
+  --amber: #8a5a00;
+  --bg: #f7f8fa;
+  --text: var(--ink);
+  --muted: #4a5260;
+  --faint: #6b7384;
+  --disabled: #9aa3b2;
+  --field: #f2f4f7; /* inputs */
+  --chip: #eef2f8; /* chips and soft tiles */
+  --line: #eef0f3;
+  --radius: 18px;
+  --radius-small: 12px;
+  --shadow: 0 2px 10px rgba(15, 31, 61, 0.14);
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 700;
   color: var(--text);
   background: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 900;
+  line-height: 1.15;
 }
 
 body {
@@ -24,7 +45,7 @@ main {
   gap: 8px;
   padding: 12px 16px;
   background: #ffffff;
-  border-bottom: 1px solid #dde2ea;
+  border-bottom: 1px solid var(--line);
 }
 
 .navbar nav {
@@ -37,7 +58,7 @@ main {
   border-radius: 8px;
   color: var(--navy);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 /* NavLink adds the "active" class to the link of the page you are on */
@@ -53,53 +74,14 @@ main {
   border-radius: 12px;
 }
 
-.login {
-  max-width: 360px;
-  margin: 24px auto;
-}
-
-.login form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.login label {
-  font-weight: 600;
-}
-
-.login input {
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid #c5ccd8;
-  border-radius: 10px;
-  font: inherit;
-}
-
-.login button {
-  height: 48px;
-  margin-top: 8px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--red);
-  color: #ffffff;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.login button:disabled {
-  opacity: 0.6;
-}
-
 .error {
   margin: 0;
   color: var(--red);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .muted {
-  color: #5b6474;
+  color: var(--faint);
 }
 
 .link-button {
@@ -108,7 +90,7 @@ main {
   background: none;
   color: var(--red);
   font: inherit;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -120,10 +102,10 @@ main {
 }
 
 .panel {
-  padding: 16px;
-  border: 1px solid #dde2ea;
-  border-radius: 12px;
+  padding: 18px;
+  border-radius: var(--radius);
   background: #ffffff;
+  box-shadow: var(--shadow);
 }
 
 .form {
@@ -137,26 +119,34 @@ main {
 
 .form label {
   display: grid;
-  gap: 4px;
-  font-weight: 600;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.form input {
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid #c5ccd8;
-  border-radius: 10px;
+.form input,
+.form select,
+.field {
+  height: 54px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--field);
+  color: var(--ink);
   font: inherit;
+  font-size: 16px;
 }
 
 .form button[type='submit'] {
-  height: 48px;
+  height: 58px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--red);
   color: #ffffff;
   font: inherit;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 900;
   cursor: pointer;
 }
 
@@ -189,7 +179,7 @@ main {
 .table th,
 .table td {
   padding: 10px 8px;
-  border-bottom: 1px solid #dde2ea;
+  border-bottom: 1px solid var(--line);
   text-align: left;
 }
 
@@ -234,7 +224,7 @@ main {
 .capacity label {
   display: grid;
   gap: 4px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .capacity input {
@@ -254,7 +244,7 @@ main {
   background: var(--navy);
   color: #ffffff;
   font: inherit;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -319,7 +309,7 @@ main {
 .reason label {
   display: grid;
   gap: 4px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .reason input {
@@ -337,14 +327,14 @@ main {
 }
 
 .small-button {
-  height: 40px;
-  padding: 0 16px;
+  height: 44px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-small);
   background: var(--navy);
   color: #ffffff;
   font: inherit;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -399,15 +389,6 @@ main {
   align-items: baseline;
 }
 
-.form select {
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid #c5ccd8;
-  border-radius: 10px;
-  background: #ffffff;
-  font: inherit;
-}
-
 .directions {
   display: flex;
   flex-wrap: wrap;
@@ -419,7 +400,7 @@ main {
 
 .directions legend {
   margin-bottom: 4px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .form .choice {
@@ -436,7 +417,7 @@ main {
 
 .auth-switch a {
   color: var(--red);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .hint {
@@ -479,7 +460,7 @@ main {
 
 .prompt-body a {
   color: var(--red);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .prompt-body a.button {
@@ -528,13 +509,13 @@ main {
 /* Next stop and ETA under the live map */
 .next-stop {
   color: var(--navy);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 /* Location not live (#19) */
 .not-live {
   color: var(--red);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 /* Ending a journey (#20) */
@@ -642,7 +623,7 @@ main {
   background: transparent;
   color: var(--navy);
   font: inherit;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -670,7 +651,7 @@ main {
 .report-period label {
   display: grid;
   gap: 4px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .report-tiles {
@@ -706,7 +687,7 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .leaderboard {
@@ -731,4 +712,264 @@ main {
 .leaderboard .rank {
   font-weight: 700;
   color: var(--navy);
+}
+
+/* ---------------------------------------------------------------------------------------
+   Shared pieces from the prototype (#68); later screens are built from these
+   --------------------------------------------------------------------------------------- */
+
+/* Big full-width buttons: red for the main action, blue for the second, white on dark */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 58px;
+  border: 0;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.btn-blue {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.btn-light {
+  background: #ffffff;
+  color: var(--navy);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Small rounded labels: "18/30 seats", "Change stop" */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--radius-small);
+  background: var(--chip);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* Big number tiles: "8 minutes to Remera Gare" */
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 118px;
+  padding: 8px;
+  border-radius: var(--radius);
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  text-align: center;
+}
+
+.tile strong {
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.tile span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tile small {
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.tile.highlight {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.tile.highlight strong {
+  color: #ffffff;
+}
+
+/* Round white buttons floating on the map: close, alerts, centre */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* The white sheet that slides over the bottom of a map */
+.sheet {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  margin-top: -28px;
+  padding: 10px 20px 24px;
+  border-radius: 28px 28px 0 0;
+  background: #ffffff;
+  box-shadow: 0 -4px 18px rgba(15, 31, 61, 0.12);
+}
+
+.sheet::before {
+  content: '';
+  justify-self: center;
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: #d5dbe5;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Sign in and sign up (#68, prototype screen "Main")
+   --------------------------------------------------------------------------------------- */
+
+.auth {
+  max-width: 420px;
+  margin: -16px auto 0; /* the route picture runs to the top edge */
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+.auth-art {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+}
+
+.auth-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fades the picture into the white page below it */
+.auth-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 20%, #ffffff 92%);
+}
+
+.auth-body {
+  display: grid;
+  gap: 18px;
+  padding: 0 24px 32px;
+  margin-top: -24px;
+  position: relative;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.brand-name {
+  display: grid;
+}
+
+.brand-name strong {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brand-name span {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.auth .form {
+  gap: 16px;
+}
+
+.auth-links {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.auth-links a {
+  padding: 4px;
+  color: var(--navy);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+/* On a phone the sign-in screen runs edge to edge, like the prototype */
+@media (max-width: 452px) {
+  .auth {
+    margin: -16px -16px 0;
+  }
+}
+
+.auth .hint {
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+/* The bus on the live map: a white disc with a blue ring and the bus icon (#68) */
+.bus-marker span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  border: 3px solid;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(20, 33, 61, 0.25);
 }

@@ -2,8 +2,10 @@ import { useState, type SubmitEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { ApiError } from '../api/client.ts'
 import { homePathFor, useAuth } from '../auth/AuthContext.ts'
+import AuthLayout from '../components/AuthLayout'
 
-// Sign-in form: email and password, then opens the page for the user's role
+// Sign-in form: email and password, then opens the page for the user's role; styled like the
+// prototype's first screen (#68)
 function LoginPage() {
   const { user, signIn } = useAuth()
   const navigate = useNavigate()
@@ -29,27 +31,31 @@ function LoginPage() {
   }
 
   return (
-    <section className="login">
-      <h1>Sign in</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">ALU email</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+    <AuthLayout>
+      <form className="form" onSubmit={handleSubmit}>
+        <label htmlFor="email">
+          ALU email
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@alustudent.com"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+        <label htmlFor="password">
+          Password
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </label>
         {error && (
           <p className="error" role="alert">
             {error}
@@ -59,13 +65,13 @@ function LoginPage() {
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-      <p className="auth-switch">
-        New student? <Link to="/signup">Create an account</Link>
-      </p>
-      <p className="auth-switch">
-        Just checking the bus? <Link to="/guest">Continue as a guest</Link>
-      </p>
-    </section>
+      <div className="auth-links">
+        <Link to="/guest">Just checking the bus? Continue without signing in</Link>
+        <span className="muted">
+          New student? <Link to="/signup">Create an account</Link>
+        </span>
+      </div>
+    </AuthLayout>
   )
 }
 
