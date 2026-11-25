@@ -103,3 +103,25 @@ def test_an_old_position_shows_its_real_age(client, db, driver, journey):
     db.commit()
     [bus] = client.get("/live/buses").json()
     assert 295 < bus["age_seconds"] < 310
+
+
+# --- Minutes to every stop ahead (#70) -------------------------------------------------------
+
+
+def test_live_buses_list_every_stop_ahead_with_minutes(client, driver, journey):
+    """From near Rebero: all 12 stops after it, in travel order, each further away than the last."""
+    send(client, driver, journey, MOVED_ON)
+    [bus] = client.get("/live/buses").json()
+    ahead = bus["stops_ahead"]
+    assert [stop["name"] for stop in ahead][:2] == ["Rujugiro", "Kwa Kaboyi"]
+    assert ahead[-1]["name"] == "ALU Campus"
+    assert ahead[0]["minutes"] == bus["eta_minutes"]
+    minutes = [stop["minutes"] for stop in ahead]
+    assert minutes == sorted(minutes)
+
+
+def test_no_stops_ahead_while_off_the_route(client, driver, journey):
+    """Far from the route there is no ETA, so no list either."""
+    send(client, driver, journey, {"latitude": -1.9500, "longitude": 30.0600, "accuracy": 10})
+    [bus] = client.get("/live/buses").json()
+    assert bus["stops_ahead"] == []

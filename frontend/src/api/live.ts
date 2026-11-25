@@ -7,6 +7,9 @@ export type Stop = { name: string; latitude: number; longitude: number; sequence
 // The route line and its stops
 export type RouteInfo = { name: string; stops: Stop[] }
 
+// A stop the bus has not reached yet and roughly how many minutes away it is
+export type StopAhead = { name: string; minutes: number }
+
 // Where one bus on the road is now; the same shape on page load and in live updates
 export type LiveBus = {
   type: 'position'
@@ -20,6 +23,7 @@ export type LiveBus = {
   recorded_at: string
   next_stop: string | null // null when the bus is not on the route yet
   eta_minutes: number | null
+  stops_ahead: StopAhead[] // every stop still ahead, in travel order; empty off the route (#70)
   age_seconds: number // how old the position was when the server sent it
 }
 

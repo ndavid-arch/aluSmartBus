@@ -10,6 +10,7 @@ import NotFoundPage from './pages/NotFoundPage.tsx'
 import ProfilePage from './pages/ProfilePage.tsx'
 import SignUpPage from './pages/SignUpPage.tsx'
 import StudentPage from './pages/StudentPage.tsx'
+import TrackPage from './pages/TrackPage.tsx'
 
 // The app's pages: the guest view, sign-in and sign-up are open to all; each role page is only for that role
 function App() {
@@ -27,6 +28,14 @@ function App() {
             element={
               <RequireAuth role="student">
                 <StudentPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/student/track/:journeyId"
+            element={
+              <RequireAuth role="student">
+                <TrackPage />
               </RequireAuth>
             }
           />

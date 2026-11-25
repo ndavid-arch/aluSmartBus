@@ -112,23 +112,26 @@ def bus_progress(
     )
 
 
-def minutes_to_stops_ahead(journey: Journey, location: LocationUpdate) -> dict:
-    """Minutes until the bus reaches each stop still ahead of it, by stop ID (#25).
-
-    Empty when the bus is off the route, so no alert goes out on a guess.
-    """
+def stops_ahead(journey: Journey, location: LocationUpdate) -> list[tuple[Stop, int]]:
+    """Each stop still ahead of the bus, in travel order, with the minutes until it gets there
+    (#25, #70). Empty when the bus is off the route, so nothing is shown or sent on a guess."""
     settings = get_settings()
     route = stops_in_travel_order(journey.route.stops, journey.direction)
     located = locate_on_route(
         route, location.latitude, location.longitude, settings.off_route_distance_m
     )
     if located is None:
-        return {}
+        return []
     next_index, metres = located
-    return {
-        stop.id: minutes_for(distance, settings.average_bus_speed_kmh)
+    return [
+        (stop, minutes_for(distance, settings.average_bus_speed_kmh))
         for stop, distance in zip(route[next_index:], metres, strict=True)
-    }
+    ]
+
+
+def minutes_to_stops_ahead(journey: Journey, location: LocationUpdate) -> dict:
+    """Minutes until the bus reaches each stop still ahead of it, by stop ID (for the alerts)."""
+    return {stop.id: minutes for stop, minutes in stops_ahead(journey, location)}
 
 
 def journey_progress(journey: Journey, location: LocationUpdate) -> Progress:

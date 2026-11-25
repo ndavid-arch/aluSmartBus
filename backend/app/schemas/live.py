@@ -7,7 +7,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict
 
 from app.clock import seconds_since
-from app.eta import journey_progress
+from app.eta import journey_progress, stops_ahead
 from app.models import Direction, Journey, LocationUpdate
 
 
@@ -31,6 +31,13 @@ class RouteOut(BaseModel):
     stops: list[StopOut]
 
 
+class StopAhead(BaseModel):
+    """A stop the bus has not reached yet, and roughly how many minutes away it is (#70)."""
+
+    name: str
+    minutes: int
+
+
 class LiveBus(BaseModel):
     """Where one bus on the road is now: the same shape on page load and in live updates."""
 
@@ -45,6 +52,9 @@ class LiveBus(BaseModel):
     recorded_at: datetime
     next_stop: str | None  # None when the bus is not on the route yet
     eta_minutes: int | None
+    # Every stop still ahead, in travel order (empty off the route): the track screen's
+    # minute tiles and timeline (#70)
+    stops_ahead: list[StopAhead] = []
     # Worked out by the server, so a phone whose clock is wrong still knows how old this is
     age_seconds: float
 
@@ -64,5 +74,9 @@ class LiveBus(BaseModel):
             recorded_at=location.recorded_at,
             next_stop=progress.next_stop,
             eta_minutes=progress.eta_minutes,
+            stops_ahead=[
+                StopAhead(name=stop.name, minutes=minutes)
+                for stop, minutes in stops_ahead(journey, location)
+            ],
             age_seconds=seconds_since(location.recorded_at),
         )
