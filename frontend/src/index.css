@@ -973,3 +973,158 @@ main {
   background: #ffffff;
   box-shadow: 0 2px 6px rgba(20, 33, 61, 0.25);
 }
+
+/* ---------------------------------------------------------------------------------------
+   Student bus list (#69, prototype screen "Buses")
+   --------------------------------------------------------------------------------------- */
+
+/* Hidden on screen, still read by screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.page.student {
+  gap: 0;
+}
+
+/* The map runs edge to edge at the top, under the page's own padding */
+.map-top {
+  margin: -16px -16px 0;
+}
+
+.live-map.compact .route-map {
+  height: 300px;
+  min-height: 0;
+  border-radius: 0;
+}
+
+/* My stop and the bus cards, under the map (its credit line stays readable) */
+.student-body {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.my-stop {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 12px 18px;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.my-stop small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.my-stop strong {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.my-stop .chip {
+  border: 0;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* The numbered cards sit together as one block */
+.bus-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.bus-card {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 112px;
+  padding: 16px 18px;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bus-card.live {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.bus-card.waiting {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.bus-card.off {
+  background: #e4e8ef;
+  color: var(--muted);
+}
+
+/* The chosen bus gets a white inner frame */
+.bus-card.chosen {
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.75);
+}
+
+.bus-card.off.chosen {
+  box-shadow: inset 0 0 0 4px var(--navy);
+}
+
+.bus-number {
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.bus-text {
+  display: grid;
+  gap: 2px;
+}
+
+.bus-text strong {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.bus-text > span:not(.badge) {
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.92;
+}
+
+.bus-text .badge {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.bus-side {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bus-side strong {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+}
