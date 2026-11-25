@@ -4,8 +4,9 @@ import type { Direction } from './journeys'
 // A designated stop, in the order the bus visits it going Rebero -> ALU
 export type Stop = { name: string; latitude: number; longitude: number; sequence: number }
 
-// The route line and its stops
-export type RouteInfo = { name: string; stops: Stop[] }
+// The route, its stops, and the line to draw as [latitude, longitude] points: along the roads
+// once the road path is saved (#79), otherwise straight from stop to stop
+export type RouteInfo = { name: string; stops: Stop[]; path: [number, number][] }
 
 // A stop the bus has not reached yet and roughly how many minutes away it is
 export type StopAhead = { name: string; minutes: number }

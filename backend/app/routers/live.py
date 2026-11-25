@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 from app.core.deps import DbSession
 from app.live import live_updates
 from app.models import Journey, JourneyStatus, Route
+from app.road_path import load_road_path
 from app.routers.journeys import latest_reading
 from app.schemas.live import LiveBus, RouteOut
 from app.seed_data import ROUTE_NAME
@@ -16,13 +17,15 @@ router = APIRouter(tags=["live map"])
 
 @router.get("/route")
 def get_route(db: DbSession) -> RouteOut:
-    """The Rebero - ALU route and its stops in order, for drawing the map (FR-09)."""
+    """The Rebero - ALU route, its stops in order and the line to draw (FR-09, #79)."""
     route = db.scalar(
         select(Route).where(Route.name == ROUTE_NAME).options(selectinload(Route.stops))
     )
     if route is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="The route is not set up yet")
-    return RouteOut.model_validate(route)
+    shown = RouteOut.model_validate(route)
+    straight = [(stop.latitude, stop.longitude) for stop in shown.stops]
+    return shown.model_copy(update={"path": load_road_path() or straight})
 
 
 @router.get("/live/buses")
