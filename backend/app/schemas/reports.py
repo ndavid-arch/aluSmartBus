@@ -9,15 +9,18 @@ from app.models import Direction
 
 
 class JourneyRow(BaseModel):
-    """One completed journey in the period and how many students boarded it."""
+    """One completed journey in the period: how many students boarded it and missed it."""
 
     id: uuid.UUID
+    bus_id: uuid.UUID
     plate_number: str
+    capacity: int  # seats on the bus, so the page can show when it ran full
     driver_name: str
     direction: Direction
     started_at: datetime
     ended_at: datetime | None
     boarded: int
+    missed: int  # students who chose a pickup on this journey and missed the bus (#78)
 
 
 class StopDemand(BaseModel):

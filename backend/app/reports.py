@@ -53,6 +53,20 @@ def boardings_per_journey(db: Session, journeys: list[Journey]) -> Counter:
     return Counter(dict(rows.all()))
 
 
+def missed_per_journey(db: Session, journeys: list[Journey]) -> Counter:
+    """How many students missed their chosen pickup on each journey, by journey ID (#78)."""
+    rows = db.execute(
+        select(StopSelection.journey_id, func.count())
+        .where(
+            StopSelection.journey_id.in_([journey.id for journey in journeys]),
+            StopSelection.type == SelectionType.PICKUP,
+            StopSelection.pickup_status == PickupStatus.MISSED,
+        )
+        .group_by(StopSelection.journey_id)
+    )
+    return Counter(dict(rows.all()))
+
+
 def demand_by_stop(db: Session, route: Route, journeys: list[Journey]) -> list[StopDemand]:
     """For every stop in route order: pickups, boardings, misses and drop-offs chosen there."""
     selections = db.scalars(
@@ -96,6 +110,7 @@ def build_report(db: Session, route: Route, start: date, end: date) -> Report:
     """Everything the admin's report page shows for one period."""
     journeys = completed_journeys(db, start, end)
     boarded = boardings_per_journey(db, journeys)
+    missed = missed_per_journey(db, journeys)
     stops = demand_by_stop(db, route, journeys)
     return Report(
         start=start,
@@ -107,12 +122,15 @@ def build_report(db: Session, route: Route, start: date, end: date) -> Report:
         journeys=[
             JourneyRow(
                 id=journey.id,
+                bus_id=journey.bus.id,
                 plate_number=journey.bus.plate_number,
+                capacity=journey.bus.capacity,
                 driver_name=journey.driver.full_name,
                 direction=journey.direction,
                 started_at=journey.started_at,
                 ended_at=journey.ended_at,
                 boarded=boarded[journey.id],
+                missed=missed[journey.id],
             )
             for journey in journeys
         ],

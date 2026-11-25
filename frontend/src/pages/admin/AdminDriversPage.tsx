@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { listBuses } from '../../api/buses'
 import { ApiError } from '../../api/client'
 import { listDrivers, type CreatedDriver, type Driver } from '../../api/drivers'
 import { listJourneys, type Journey } from '../../api/journeys'
@@ -8,6 +7,7 @@ import { useAuth } from '../../auth/AuthContext'
 import AddDriverForm from '../../components/AddDriverForm'
 import AdminHeader from '../../components/AdminHeader'
 import Dialog from '../../components/Dialog'
+import { useBusNumbers } from '../../hooks/useBusNumbers'
 import { useNow } from '../../hooks/useNow'
 import { dayAndTime } from '../../time'
 
@@ -37,13 +37,13 @@ function AdminDriversPage() {
   const adding = params.get('new') === '1' // kept in the address, so Back closes the dialog
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [journeys, setJourneys] = useState<Journey[]>([])
-  const [busNumbers, setBusNumbers] = useState<Map<string, number>>(new Map())
+  const busNumbers = useBusNumbers(token)
   const [filter, setFilter] = useState<Filter>('all')
   const [created, setCreated] = useState<CreatedDriver | null>(null)
   const [loadError, setLoadError] = useState('')
   const now = useNow(60_000)
 
-  // Drivers, their journeys, and the bus numbers ("Bus 1" is the first plate), once
+  // Drivers and their journeys, once
   useEffect(() => {
     if (!token) return
     listDrivers(token)
@@ -53,12 +53,6 @@ function AdminDriversPage() {
       )
     listJourneys('all', token)
       .then(setJourneys)
-      .catch(() => {})
-    listBuses(token)
-      .then((buses) => {
-        const plates = [...buses].sort((a, b) => a.plate_number.localeCompare(b.plate_number))
-        setBusNumbers(new Map(plates.map((bus, index) => [bus.id, index + 1])))
-      })
       .catch(() => {})
   }, [token])
 

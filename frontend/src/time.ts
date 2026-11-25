@@ -29,3 +29,15 @@ export function dayAndTime(iso: string, now: number): string {
   if (daysAgo === 1) return `Yesterday ${clockAt(iso)}`
   return day.toLocaleDateString([], { day: 'numeric', month: 'short' })
 }
+
+// 'YYYY-MM-DD' for a day in the viewer's own calendar (what a date input and the report expect)
+export function dayString(day: Date): string {
+  return day.toLocaleDateString('en-CA')
+}
+
+// Monday of the week a day falls in, as 'YYYY-MM-DD' ("This week" on the admin pages, #78)
+export function mondayOf(day: Date): string {
+  const monday = new Date(day)
+  monday.setDate(day.getDate() - ((day.getDay() + 6) % 7))
+  return dayString(monday)
+}
