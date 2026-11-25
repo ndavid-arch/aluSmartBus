@@ -4,7 +4,7 @@ FastAPI service for ALU SmartBus: REST API, WebSockets for live tracking, and th
 
 ## Run it locally
 
-Needs Python 3.11 or newer.
+Needs Python 3.11 or newer. Set up the database first (next section) the first time.
 
 ```bash
 cd backend
@@ -24,24 +24,22 @@ The backend uses PostgreSQL. For local development it runs in Docker.
 # from the project root: start the database
 docker compose up -d
 
-# from backend/: create your settings file, then the tables
+# from backend/: create your settings file
 cp .env.example .env
-alembic upgrade head
-
-# add the Rebero - ALU route and its stops
-python -m app.seed
-
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
-Add a `SECRET_KEY` to `.env` (it signs sign-in tokens; never commit it):
+
+In `.env`, replace `change-me` after `SECRET_KEY=` with the printed text (it signs sign-in tokens; never commit it). Then create the tables and add the Rebero - ALU route and its stops:
 
 ```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
+alembic upgrade head
+python -m app.seed
 ```
 
 Create an account to sign in with (it asks for the password without showing it):
 
 ```bash
-python -m app.create_user --name "Test Student" --email student@alustudent.com --role student
+python -m app.create_user --name "Admin" --email admin@alueducation.com --role admin
 ```
 
 `python -m app.seed` refuses to run until every stop in `app/seed_data.py` has real coordinates.
