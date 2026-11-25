@@ -192,3 +192,21 @@ def test_the_leaderboard_needs_a_signed_in_user(client, student):
     """Guests do not see who rides the bus."""
     assert client.get("/leaderboard").status_code == 401
     assert client.get("/leaderboard?period=year", headers=auth_headers(student)).status_code == 422
+
+
+# --- My rank this month (#75) ------------------------------------------------------------------
+
+
+def test_my_rank_this_month(client, db, route, driver, bus, riders):
+    """Aline 15 points, Eric and Grace 10 each: ranks 1, 2 and 2 (shared, like the board)."""
+    aline, eric, grace = riders
+    ride(client, db, driver, bus, aline, pickup=REMERA)
+    ride(client, db, driver, bus, eric)
+    ride(client, db, driver, bus, grace)
+    assert [profile(client, r)["rank_this_month"] for r in riders] == [1, 2, 2]
+
+
+def test_no_rank_without_points_this_month(client, db, route, driver, bus, student):
+    """A trip last month gives points for all time, but no place on this month's board."""
+    ride(client, db, driver, bus, student, days_ago=40)
+    assert profile(client, student)["rank_this_month"] is None

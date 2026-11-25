@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { ApiError } from '../api/client'
 import { getProfile, setNameHidden, type Profile } from '../api/profile'
 import { useAuth } from '../auth/AuthContext'
+import Avatar from '../components/Avatar'
 import Leaderboard from '../components/Leaderboard'
 
-// The student's profile: trips, points and usual stop, the name setting and the leaderboard
-// (#34, FR-62 to FR-65)
+// The student's profile, laid out like the prototype (#75): who I am and my usual stop, trips,
+// points and this month's rank, the podium, how points are earned, the name setting (#34)
 function ProfilePage() {
-  const { token } = useAuth()
+  const { token, signOut } = useAuth()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -41,43 +42,65 @@ function ProfilePage() {
   if (!token) return null
 
   return (
-    <section className="page">
-      <h1>My profile</h1>
+    <section className="page profile">
       {error && <p className="error">{error}</p>}
       {profile && (
         <>
-          <div className="panel">
-            <h2>{profile.full_name}</h2>
-            <p className="muted">Usual stop: {profile.usual_stop ?? 'none yet'}</p>
-            <div className="report-tiles">
-              <div className="report-tile">
-                <strong>{profile.trips}</strong>
-                <span>Trips</span>
-              </div>
-              <div className="report-tile">
-                <strong>{profile.points}</strong>
-                <span>Points</span>
-              </div>
-              <div className="report-tile">
-                <strong>{profile.points_this_month}</strong>
-                <span>This month</span>
-              </div>
+          <header className="profile-head">
+            <Avatar name={profile.full_name} size="large" />
+            <div>
+              <h1>{profile.full_name}</h1>
+              <p>
+                Student
+                {profile.usual_stop && ` · usually boards at ${profile.usual_stop}`}
+              </p>
             </div>
-            <p className="muted">
-              You earn 10 points for each trip you board, and 5 more when you board on time at the
-              pickup stop you chose.
+          </header>
+
+          <div className="profile-tiles">
+            <div className="tile">
+              <strong>{profile.trips}</strong>
+              <span>trips</span>
+            </div>
+            <div className="tile">
+              <strong>{profile.points.toLocaleString()}</strong>
+              <span>points</span>
+            </div>
+            <div className="tile">
+              <strong>{profile.rank_this_month ? `#${profile.rank_this_month}` : '–'}</strong>
+              <span>this month</span>
+            </div>
+          </div>
+
+          <Leaderboard token={token} refreshKey={profile.hide_name_on_leaderboard} />
+
+          <div className="panel earn">
+            <h2>How you earn points</h2>
+            <p>
+              <strong>10 points</strong> for each trip you board by scanning the bus code, and{' '}
+              <strong>5 more</strong> when you board on time at the pickup stop you chose.
             </p>
-            <label className="check">
+          </div>
+
+          <div className="panel settings">
+            <label className="switch-row">
+              <span>
+                <strong>Hide my name on the leaderboard</strong>
+                <small>Show my initials instead</small>
+              </span>
               <input
                 type="checkbox"
+                role="switch"
                 checked={profile.hide_name_on_leaderboard}
                 disabled={saving}
                 onChange={(event) => handleHideChange(event.target.checked)}
               />
-              Hide my name on the leaderboard (show my initials)
             </label>
           </div>
-          <Leaderboard token={token} refreshKey={profile.hide_name_on_leaderboard} />
+
+          <button type="button" className="btn sign-out" onClick={signOut}>
+            Sign out
+          </button>
         </>
       )}
     </section>

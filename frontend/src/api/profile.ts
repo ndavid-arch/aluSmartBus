@@ -7,6 +7,7 @@ export type Profile = {
   trips: number
   points: number
   points_this_month: number
+  rank_this_month: number | null // my place on this month's board; null with no points yet
   hide_name_on_leaderboard: boolean
 }
 
