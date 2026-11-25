@@ -4,21 +4,31 @@ import { ApiError } from '../api/client'
 import { DIRECTION_LABELS, startJourney, type Direction, type Journey } from '../api/journeys'
 
 type Props = {
-  buses: BusStatus[] // only the buses that can start now
+  buses: BusStatus[] // every bus, so the driver sees why some cannot start
+  onTheRoad: Set<string> // buses already on a journey
   token: string
   onStarted: (journey: Journey) => void
 }
 
 const DIRECTIONS = Object.keys(DIRECTION_LABELS) as Direction[]
 
-// The driver picks a bus and a direction, then taps Start (FR-13, FR-14)
-function StartJourneyForm({ buses, token, onStarted }: Props) {
+// Why a bus cannot start now, or null when it can
+function blocked(bus: BusStatus, onTheRoad: Set<string>): string | null {
+  if (bus.availability === 'unavailable') {
+    return `Not running${bus.unavailable_reason ? ` · ${bus.unavailable_reason}` : ''}`
+  }
+  if (onTheRoad.has(bus.id)) return 'Already on the road'
+  return null
+}
+
+// The prototype's "Start a journey" (#76, FR-13, FR-14): big numbered bus cards to tap, the
+// direction, and START; the backend re-checks everything and its message is shown if it says no
+function StartJourneyForm({ buses, onTheRoad, token, onStarted }: Props) {
   const [busId, setBusId] = useState('')
   const [direction, setDirection] = useState<Direction>('rebero_to_alu')
   const [error, setError] = useState('')
   const [starting, setStarting] = useState(false)
 
-  // Ask the backend to start; it re-checks everything, so its message is shown if it says no
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
@@ -33,41 +43,61 @@ function StartJourneyForm({ buses, token, onStarted }: Props) {
   }
 
   if (buses.length === 0) {
-    return <p className="panel muted">No bus is free to start right now.</p>
+    return <p className="panel muted">No buses are registered yet.</p>
   }
 
   return (
-    <form className="panel form" onSubmit={handleSubmit}>
-      <h2>Start a journey</h2>
-      <label>
-        Bus
-        <select value={busId} onChange={(e) => setBusId(e.target.value)} required>
-          <option value="">Choose a bus</option>
-          {buses.map((bus) => (
-            <option key={bus.id} value={bus.id}>
-              {bus.plate_number}
-            </option>
-          ))}
-        </select>
-      </label>
-      <fieldset className="directions">
-        <legend>Direction</legend>
-        {DIRECTIONS.map((option) => (
-          <label key={option} className="choice">
-            <input
-              type="radio"
-              name="direction"
-              value={option}
-              checked={direction === option}
-              onChange={() => setDirection(option)}
-            />
-            {DIRECTION_LABELS[option]}
-          </label>
-        ))}
+    <form className="start-journey" onSubmit={handleSubmit}>
+      <fieldset className="bus-picks">
+        <legend className="visually-hidden">Bus</legend>
+        {buses.map((bus, index) => {
+          const reason = blocked(bus, onTheRoad)
+          return (
+            <label
+              key={bus.id}
+              className={`bus-pick${busId === bus.id ? ' chosen' : ''}${reason ? ' off' : ''}`}
+            >
+              <input
+                type="radio"
+                name="bus"
+                value={bus.id}
+                checked={busId === bus.id}
+                disabled={reason !== null}
+                onChange={() => setBusId(bus.id)}
+                required
+              />
+              <span className="bus-number">{index + 1}</span>
+              <span className="bus-text">
+                <strong>Bus {index + 1}</strong>
+                <span>{reason ?? `${bus.plate_number} · ${bus.capacity} seats`}</span>
+              </span>
+              <span className="tick" aria-hidden="true" />
+            </label>
+          )
+        })}
       </fieldset>
+
+      <div className="filter-tabs direction-toggle" role="radiogroup" aria-label="Direction">
+        {DIRECTIONS.map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={direction === option}
+            aria-pressed={direction === option}
+            onClick={() => setDirection(option)}
+          >
+            {DIRECTION_LABELS[option]}
+          </button>
+        ))}
+      </div>
+
+      <p className="keep-open">
+        Keep this screen open while you drive so students can see the bus live.
+      </p>
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={starting}>
-        {starting ? 'Starting…' : 'Start journey'}
+      <button type="submit" className="btn btn-blue start-btn" disabled={starting || !busId}>
+        {starting ? 'Starting…' : 'START'}
       </button>
     </form>
   )
