@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
+import SignInPrompt from '../components/SignInPrompt'
 import { DIRECTION_LABELS, type Direction } from '../api/journeys'
 import { useAuth } from '../auth/AuthContext'
 import { BellIcon, CentreIcon, CloseIcon, ScanIcon } from '../components/icons'
@@ -43,6 +44,8 @@ function TrackPage() {
   const { bus, number, ended } = useJourneyBus(journeyId)
   const { pickup, reload } = useMySelections(journeyId, token ?? '')
   const [focusKey, setFocusKey] = useState(1)
+  const [promptOpen, setPromptOpen] = useState(false)
+  const home = token ? '/student' : '/guest' // guests can watch the bus too (#74)
   // Checked once here for the pop-ups and the alerts view (#25, #72)
   const { permission, alerts, latest, enable } = useAlerts(journeyId, token ?? '')
 
@@ -56,11 +59,14 @@ function TrackPage() {
 
   // Open or close a panel in the sheet; the choice is kept in the address, so Back closes it
   function toggle(next: Panel) {
+    // A guest is invited to sign in instead of opening what needs an account (FR-61)
+    if (!token && next !== null) {
+      setPromptOpen(true)
+      return
+    }
     setParams(panel === next || next === null ? {} : { panel: next })
     if (next === 'stops') reload()
   }
-
-  if (!token) return null
 
   if (ended) {
     return (
@@ -68,7 +74,7 @@ function TrackPage() {
         <div className="panel notice" role="status">
           <p>This journey has ended.</p>
         </div>
-        <Link className="btn btn-blue" to="/student">
+        <Link className="btn btn-blue" to={home}>
           Back to the buses
         </Link>
       </section>
@@ -92,7 +98,7 @@ function TrackPage() {
           {number > 0 && <span className="track-number">{number}</span>}
         </div>
         <div className="track-buttons">
-          <Link className="icon-btn close" to="/student" aria-label="Back to the buses">
+          <Link className="icon-btn close" to={home} aria-label="Back to the buses">
             <CloseIcon />
           </Link>
           <button
@@ -116,7 +122,7 @@ function TrackPage() {
       </div>
 
       <div className="sheet">
-        {panel === 'alerts' ? (
+        {token && panel === 'alerts' ? (
           <HeadToStop
             number={number}
             pickup={pickup}
@@ -146,7 +152,7 @@ function TrackPage() {
               </button>
             </div>
 
-            {panel === 'board' && (
+            {token && panel === 'board' && (
               <ScanScreen
                 token={token}
                 label={`${number} · ${destination}`}
@@ -175,7 +181,7 @@ function TrackPage() {
             </div>
 
             {pickup && pickup.window_state !== 'waiting' && <PickupStatus pickup={pickup} />}
-            {panel === 'stops' && (
+            {token && panel === 'stops' && (
               <StopChooser
                 journeyId={journeyId}
                 token={token}
@@ -195,14 +201,17 @@ function TrackPage() {
         )}
 
         {/* Alerts are checked by this page, so they keep popping up whatever is open (#25, #26) */}
-        <BusAlerts
-          permission={permission}
-          latest={latest}
-          enable={enable}
-          // the alerts view already lists every alert, so the banner is not repeated there
-          waiting={pickup?.window_state === 'waiting' && panel !== 'alerts'}
-        />
+        {token && (
+          <BusAlerts
+            permission={permission}
+            latest={latest}
+            enable={enable}
+            // the alerts view already lists every alert, so the banner is not repeated there
+            waiting={pickup?.window_state === 'waiting' && panel !== 'alerts'}
+          />
+        )}
       </div>
+      <SignInPrompt open={promptOpen} onClose={() => setPromptOpen(false)} />
     </section>
   )
 }

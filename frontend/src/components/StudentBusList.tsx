@@ -50,11 +50,12 @@ type Props = {
   token?: string | null
   live: TrackedBus[] // live positions, shared with the map
   now: number
+  trackPath: string // where a bus on the road opens: '/student/track' or '/guest/track' (#74)
 }
 
 // The student's bus list: every bus as a numbered card with its live status; choosing one checks
 // it again (FR-08, FR-48, #69)
-function StudentBusList({ token, live, now }: Props) {
+function StudentBusList({ token, live, now, trackPath }: Props) {
   const { buses, loadError, replaceBus } = useBusStatus()
   const [selected, setSelected] = useState<BusStatus | null>(null)
   const [checkError, setCheckError] = useState('')
@@ -66,9 +67,9 @@ function StudentBusList({ token, live, now }: Props) {
     try {
       const latest = await getBusStatus(busId)
       replaceBus(latest)
-      // A signed-in student follows a bus on the road on its own track screen (#70)
-      if (token && latest.journey_id) {
-        navigate(`/student/track/${latest.journey_id}`)
+      // A bus on the road opens its own track screen (#70; guests too, #74)
+      if (latest.journey_id) {
+        navigate(`${trackPath}/${latest.journey_id}`)
         return
       }
       setSelected(latest)
