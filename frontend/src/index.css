@@ -700,3 +700,35 @@ main {
   border-radius: 999px;
   background: var(--navy);
 }
+
+/* Profile and leaderboard (#34) */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.leaderboard {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leaderboard li {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  padding: 8px 6px;
+  border-bottom: 1px solid #e3e7ee;
+}
+
+.leaderboard li.me {
+  background: #eef3fb;
+  border-radius: 8px;
+}
+
+.leaderboard .rank {
+  font-weight: 700;
+  color: var(--navy);
+}

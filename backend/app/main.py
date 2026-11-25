@@ -14,6 +14,7 @@ from app.routers import (
     live,
     locations,
     notifications,
+    profile,
     reports,
     selections,
 )
@@ -32,3 +33,4 @@ app.include_router(arrivals.router)
 app.include_router(notifications.router)
 app.include_router(boardings.router)
 app.include_router(reports.router)
+app.include_router(profile.router)

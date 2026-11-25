@@ -4,12 +4,12 @@ Only counts leave this module: the report never names a student (FR-59).
 """
 
 from collections import Counter
-from datetime import UTC, date, datetime, time, timedelta, timezone
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
+from app.clock import start_of_local_day
 from app.models import (
     BoardingRecord,
     Journey,
@@ -24,10 +24,7 @@ from app.schemas.reports import JourneyRow, Report, StopDemand
 
 def period_bounds(start: date, end: date) -> tuple[datetime, datetime]:
     """The UTC moments where the local days start..end begin and end (end day included)."""
-    local = timezone(timedelta(hours=get_settings().local_utc_offset_hours))
-    first = datetime.combine(start, time.min, tzinfo=local)
-    after_last = datetime.combine(end + timedelta(days=1), time.min, tzinfo=local)
-    return first.astimezone(UTC), after_last.astimezone(UTC)
+    return start_of_local_day(start), start_of_local_day(end + timedelta(days=1))
 
 
 def completed_journeys(db: Session, start: date, end: date) -> list[Journey]:

@@ -7,6 +7,7 @@ import GuestPage from './pages/GuestPage.tsx'
 import HomeRedirect from './pages/HomeRedirect.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
+import ProfilePage from './pages/ProfilePage.tsx'
 import SignUpPage from './pages/SignUpPage.tsx'
 import StudentPage from './pages/StudentPage.tsx'
 
@@ -26,6 +27,14 @@ function App() {
             element={
               <RequireAuth role="student">
                 <StudentPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth role="student">
+                <ProfilePage />
               </RequireAuth>
             }
           />

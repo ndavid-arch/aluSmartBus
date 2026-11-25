@@ -24,7 +24,8 @@ function FitToRoute({ stops }: { stops: Stop[] }) {
     if (stops.length > 0) {
       map.fitBounds(
         stops.map((stop) => [stop.latitude, stop.longitude]),
-        { padding: [24, 24] },
+        // No zoom animation: leaving the page mid-animation made Leaflet throw an error
+        { padding: [24, 24], animate: false },
       )
     }
   }, [map, stops])
