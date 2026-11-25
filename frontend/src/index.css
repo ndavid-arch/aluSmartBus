@@ -570,3 +570,24 @@ main {
 .bus-alerts {
   margin-top: 0.75rem;
 }
+
+/* Scan to board (#27) */
+.scanner-video {
+  width: 100%;
+  max-height: 60vh;
+  border-radius: 12px;
+  background: #0f1f3d;
+  object-fit: cover;
+}
+
+.photo-fallback {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* The file picker opens from the label text; the input itself stays hidden */
+.photo-fallback input {
+  display: none;
+}
