@@ -534,11 +534,6 @@ main {
   margin: 0;
 }
 
-/* Choosing stops (#21) */
-.stop-picker p {
-  margin: 0;
-}
-
 /* The driver's list of stops ahead (#24) */
 .stop-requests ol {
   margin: 0;
@@ -1323,4 +1318,155 @@ main {
   font-size: 14px;
   font-weight: 800;
   color: var(--muted);
+}
+
+/* ---------------------------------------------------------------------------------------
+   Choose my stop (#71, prototype screen "Stop"): a full-screen sheet over the track screen
+   --------------------------------------------------------------------------------------- */
+
+.chooser {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; /* above the map and the navigation bar */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  background: var(--bg);
+}
+
+.chooser-head {
+  display: grid;
+  gap: 10px;
+  padding: 24px 18px 18px;
+  border-radius: 0 0 26px 26px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.chooser-head > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.chooser-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.chooser-head .close {
+  color: var(--red);
+}
+
+.chooser-head p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.88;
+}
+
+.chooser-note {
+  margin: 0 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--field);
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chooser-list {
+  margin: 0 16px;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.chooser-list label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 62px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.chooser-list li:last-child label {
+  border-bottom: 0;
+}
+
+/* The prototype's radio: a grey ring, a thick red ring when chosen */
+.chooser-list input {
+  appearance: none;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 2.5px solid var(--disabled);
+  border-radius: 11px;
+  background: #ffffff;
+}
+
+.chooser-list input:checked {
+  border: 7px solid var(--red);
+}
+
+.chooser-list input:focus-visible {
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+}
+
+.chooser-name {
+  flex-grow: 1;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.chooser-list .selected {
+  background: #fff3f4;
+}
+
+.chooser-list .selected .chooser-name {
+  font-weight: 900;
+}
+
+.chooser-list .blocked {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* The minutes pill: blue, red for the chosen stop */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--radius-small);
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.selected .pill {
+  background: var(--red);
+}
+
+.blocked .pill {
+  background: var(--disabled);
+  font-size: 12px;
+}
+
+.chooser-actions {
+  display: grid;
+  gap: 6px;
+  margin: auto 16px 0;
+  padding-top: 12px;
 }
