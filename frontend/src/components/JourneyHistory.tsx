@@ -53,7 +53,6 @@ function JourneyHistory({ token }: Props) {
 
   return (
     <>
-      <h2>Journeys</h2>
       <div className="filter-tabs" role="group" aria-label="Show journeys">
         {FILTERS.map(({ value, label }) => (
           <button

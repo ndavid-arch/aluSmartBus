@@ -8,7 +8,7 @@ type Props = {
   onChanged: (bus: Bus) => void
 }
 
-// A small form on each bus card for changing its capacity (FR-37)
+// The form in the admin's Edit dialog for changing a bus's capacity (FR-37)
 function CapacityEditor({ bus, token, onChanged }: Props) {
   const [capacity, setCapacity] = useState(String(bus.capacity))
   const [error, setError] = useState('')
@@ -30,7 +30,7 @@ function CapacityEditor({ bus, token, onChanged }: Props) {
   }
 
   return (
-    <form className="capacity" onSubmit={handleSubmit}>
+    <form className="form dialog-form" onSubmit={handleSubmit}>
       <label>
         Seats
         <input
@@ -42,7 +42,7 @@ function CapacityEditor({ bus, token, onChanged }: Props) {
           required
         />
       </label>
-      <button type="submit" disabled={saving || unchanged}>
+      <button type="submit" className="btn btn-primary" disabled={saving || unchanged}>
         {saving ? 'Saving…' : 'Save'}
       </button>
       {error && <p className="error">{error}</p>}

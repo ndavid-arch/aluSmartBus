@@ -37,8 +37,7 @@ function AddDriverForm({ token, onCreated }: Props) {
   }
 
   return (
-    <form className="panel form" onSubmit={handleSubmit}>
-      <h2>Add a driver</h2>
+    <form className="form dialog-form" onSubmit={handleSubmit}>
       <label>
         Full name
         <input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
@@ -52,7 +51,7 @@ function AddDriverForm({ token, onCreated }: Props) {
         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </label>
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={saving}>
+      <button type="submit" className="btn btn-primary" disabled={saving}>
         {saving ? 'Adding…' : 'Add driver'}
       </button>
     </form>

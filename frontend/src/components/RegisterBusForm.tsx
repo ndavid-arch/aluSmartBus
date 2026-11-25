@@ -32,8 +32,7 @@ function RegisterBusForm({ token, onRegistered }: Props) {
   }
 
   return (
-    <form className="panel form" onSubmit={handleSubmit}>
-      <h2>Register a bus</h2>
+    <form className="form dialog-form" onSubmit={handleSubmit}>
       <label>
         Plate number
         <input
@@ -55,7 +54,7 @@ function RegisterBusForm({ token, onRegistered }: Props) {
         />
       </label>
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={saving}>
+      <button type="submit" className="btn btn-primary" disabled={saving}>
         {saving ? 'Registering…' : 'Register bus'}
       </button>
     </form>

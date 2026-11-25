@@ -15,8 +15,8 @@ function NavBar() {
   const { user, signOut } = useAuth()
   const { pathname } = useLocation()
 
-  // Sign in and sign up are full-screen, like the prototype (#68)
-  if (AUTH_PAGES.has(pathname)) return null
+  // Sign in and sign up are full-screen (#68); the admin area has its own sidebar (#77)
+  if (AUTH_PAGES.has(pathname) || pathname.startsWith('/admin')) return null
 
   return (
     <header className="navbar">
