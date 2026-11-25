@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { ApiError } from '../api/client'
 import { getBusStatus, type BusStatus } from '../api/buses'
 import { useBusStatus } from '../hooks/useBusStatus'
@@ -59,6 +60,7 @@ function StudentBusList({ token, live, now }: Props) {
   const { buses, loadError, replaceBus } = useBusStatus()
   const [selected, setSelected] = useState<BusStatus | null>(null)
   const [checkError, setCheckError] = useState('')
+  const navigate = useNavigate()
 
   // The list may be a few minutes old, so ask for the bus's latest status
   async function handleSelect(busId: string) {
@@ -66,6 +68,11 @@ function StudentBusList({ token, live, now }: Props) {
     try {
       const latest = await getBusStatus(busId)
       replaceBus(latest)
+      // A signed-in student follows a bus on the road on its own track screen (#70)
+      if (token && latest.journey_id) {
+        navigate(`/student/track/${latest.journey_id}`)
+        return
+      }
       setSelected(latest)
     } catch (err) {
       setCheckError(err instanceof ApiError ? err.message : 'Could not check this bus.')

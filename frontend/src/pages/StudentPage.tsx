@@ -16,10 +16,10 @@ function StudentPage() {
   return (
     <section className="page student">
       <div className="map-top">
-        <RouteMap buses={buses} connected={connected} now={now} compact />
+        <RouteMap buses={buses} connected={connected} now={now} variant="compact" />
       </div>
       <div className="student-body">
-        {token && <MyStopBar token={token} />}
+        {token && <MyStopBar token={token} journeyId={buses[0]?.journey_id} />}
         <h1 className="visually-hidden">Choose your bus</h1>
         <StudentBusList token={token} live={buses} now={now} />
         {token && <ScanToBoard token={token} />}

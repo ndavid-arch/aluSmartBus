@@ -56,19 +56,43 @@ type Props = {
   buses: TrackedBus[] // from useLiveBuses, shared with the page so it opens one connection
   connected: boolean
   now: number
-  compact?: boolean // the short map at the top of the bus list (#69), without the list below it
+  // full: map with the live list under it; compact: the bus list's top map (#69);
+  // track: the tall map of the track screen (#70)
+  variant?: 'full' | 'compact' | 'track'
+  focus?: Focus // centre on this point whenever its key changes (the track screen's centre button)
+}
+
+// A point to centre on; a new key re-centres even if the point has not moved
+export type Focus = { latitude: number; longitude: number; key: number }
+
+// Move the map to the focus point when asked (first view of a bus, or the centre button)
+function CentreOn({ focus }: { focus?: Focus }) {
+  const map = useMap()
+  const key = focus?.key
+  useEffect(() => {
+    if (focus) map.setView([focus.latitude, focus.longitude], Math.max(map.getZoom(), 14))
+    // Only a new key moves the map, so a moving bus does not fight the student's own panning
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, key])
+  return null
 }
 
 // The live map: the route line, its stops, and every bus on the road (FR-09, FR-22, FR-23)
-function RouteMap({ buses, connected, now, compact = false }: Props) {
+function RouteMap({ buses, connected, now, variant = 'full', focus }: Props) {
+  const compact = variant !== 'full'
   const route = useRoute()
   const stops = route?.stops ?? []
 
   return (
-    <div className={compact ? 'live-map compact' : 'live-map'}>
-      <MapContainer center={ROUTE_CENTRE} zoom={STARTING_ZOOM} className="route-map">
+    <div className={`live-map ${variant}`}>
+      <MapContainer
+        center={ROUTE_CENTRE}
+        zoom={STARTING_ZOOM}
+        zoomControl={!compact} // the small maps keep their corners for the prototype's overlays
+        className="route-map"
+      >
         <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} />
-        <FitToRoute stops={stops} />
+        {focus ? <CentreOn focus={focus} /> : <FitToRoute stops={stops} />}
         <Polyline
           positions={stops.map((stop) => [stop.latitude, stop.longitude])}
           pathOptions={{

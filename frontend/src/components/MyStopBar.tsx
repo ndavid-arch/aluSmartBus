@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { getProfile } from '../api/profile'
 
 type Props = {
   token: string
+  journeyId?: string // a journey on the road now; Change opens its stop choices
 }
 
 // The dark "My stop" bar above the bus list (#69): the pickup the student usually chooses, and
-// Change, which jumps to the stop choices once a bus on the road is open
-function MyStopBar({ token }: Props) {
+// Change, which opens the stop choices of the bus on the road (#70)
+function MyStopBar({ token, journeyId }: Props) {
   const [usualStop, setUsualStop] = useState<string | null>(null)
 
   useEffect(() => {
@@ -15,11 +17,6 @@ function MyStopBar({ token }: Props) {
       .then((profile) => setUsualStop(profile.usual_stop))
       .catch(() => {}) // the bar still works, it just shows no usual stop
   }, [token])
-
-  // The stop picker sits under the chosen bus; bring it into view
-  function showStopChoices() {
-    document.querySelector('.stop-picker')?.scrollIntoView({ behavior: 'smooth' })
-  }
 
   return (
     <div className="my-stop">
@@ -41,9 +38,11 @@ function MyStopBar({ token }: Props) {
         <small>My stop</small>
         <strong>{usualStop ?? 'Choose a bus, then your stop'}</strong>
       </span>
-      <button type="button" className="chip" onClick={showStopChoices}>
-        Change
-      </button>
+      {journeyId && (
+        <Link className="chip" to={`/student/track/${journeyId}?panel=stops`}>
+          Change
+        </Link>
+      )}
     </div>
   )
 }
