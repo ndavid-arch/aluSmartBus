@@ -7,6 +7,7 @@ import LiveBusSummary from './LiveBusSummary'
 import { secondsSinceSeen, STALE_AFTER_SECONDS, useLiveBuses } from '../hooks/useLiveBuses'
 import { useNow } from '../hooks/useNow'
 import { useRoute } from '../hooks/useRoute'
+import { TILE_ATTRIBUTION, TILE_URL } from '../mapTiles'
 
 // Roughly the middle of the Rebero - ALU route, shown until the stops have loaded
 const ROUTE_CENTRE: [number, number] = [-1.955, 30.105]
@@ -42,10 +43,7 @@ function RouteMap() {
   return (
     <div className="live-map">
       <MapContainer center={ROUTE_CENTRE} zoom={STARTING_ZOOM} className="route-map">
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} />
         <FitToRoute stops={stops} />
         <Polyline
           positions={stops.map((stop) => [stop.latitude, stop.longitude])}
