@@ -558,27 +558,6 @@ main {
   margin-top: 0.75rem;
 }
 
-/* Scan to board (#27) */
-.scanner-video {
-  width: 100%;
-  max-height: 60vh;
-  border-radius: 12px;
-  background: #0f1f3d;
-  object-fit: cover;
-}
-
-.photo-fallback {
-  display: block;
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-/* The file picker opens from the label text; the input itself stays hidden */
-.photo-fallback input {
-  display: none;
-}
-
 /* The driver's seat count (#28) */
 .seat-count p {
   margin: 0 0 8px;
@@ -1570,4 +1549,197 @@ main {
 
 .trip-alerts .missed {
   color: var(--red);
+}
+
+/* ---------------------------------------------------------------------------------------
+   Scan and boarded (#73, prototype screens "Scan" and "Boarded"): full-screen, above all
+   --------------------------------------------------------------------------------------- */
+
+.scan-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  overflow-y: auto;
+}
+
+.scanner {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 16px 28px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 50% 40%, #2a3550 0%, #0b1220 70%);
+  color: #ffffff;
+}
+
+/* The camera fills the screen behind the frame */
+.scanner-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.scanner > :not(video) {
+  position: relative;
+}
+
+.scanner-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+}
+
+.scanner-label {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 22px;
+  background: var(--navy);
+  font-weight: 900;
+}
+
+.scanner-top .close {
+  color: var(--red);
+}
+
+.scanner-frame {
+  width: min(260px, 70vw);
+  height: min(260px, 70vw);
+  margin-top: 6vh;
+}
+
+.scanner-text {
+  display: grid;
+  gap: 8px;
+  max-width: 330px;
+  text-align: center;
+}
+
+.scanner-text h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.scanner-text p {
+  margin: 0;
+  color: #b9c2d0;
+  line-height: 1.45;
+}
+
+.scanner-text .scanner-error {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(200, 16, 46, 0.25);
+  color: #ffffff;
+}
+
+.scanner-actions {
+  display: grid;
+  gap: 10px;
+  align-self: stretch;
+  margin-top: auto;
+}
+
+/* A see-through button on dark screens */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.btn-ghost input {
+  display: none;
+}
+
+.boarded {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 0 16px 28px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.confetti {
+  position: absolute;
+  opacity: 0.9;
+  transform: rotate(25deg);
+}
+
+.boarded-message {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  margin-top: 18vh;
+  text-align: center;
+}
+
+.boarded-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 55px;
+  background: #ffffff;
+  color: var(--green);
+}
+
+.boarded-message h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.boarded-message p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.boarded-tiles {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.boarded-tiles div {
+  display: grid;
+  gap: 2px;
+  padding: 14px 8px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.14);
+  text-align: center;
+}
+
+.boarded-tiles strong {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.boarded-tiles strong.small {
+  font-size: 15px;
+}
+
+.boarded-tiles span {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.boarded .btn {
+  position: relative;
+  margin-top: auto;
 }

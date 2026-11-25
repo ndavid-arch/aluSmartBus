@@ -8,7 +8,7 @@ import HeadToStop from '../components/HeadToStop'
 import MinuteTiles from '../components/MinuteTiles'
 import PickupStatus from '../components/PickupStatus'
 import RouteMap, { type Focus } from '../components/RouteMap.tsx'
-import ScanToBoard from '../components/ScanToBoard'
+import ScanScreen from '../components/ScanScreen'
 import StopChooser from '../components/StopChooser'
 import StopTimeline from '../components/StopTimeline'
 import { useAlerts } from '../hooks/useAlerts'
@@ -146,7 +146,14 @@ function TrackPage() {
               </button>
             </div>
 
-            {panel === 'board' && <ScanToBoard token={token} />}
+            {panel === 'board' && (
+              <ScanScreen
+                token={token}
+                label={`${number} · ${destination}`}
+                stopName={pickup?.stop.name}
+                onClose={() => toggle(null)}
+              />
+            )}
 
             {live && (
               <MinuteTiles
