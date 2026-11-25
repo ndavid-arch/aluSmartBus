@@ -1,7 +1,11 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import RequireAuth from './auth/RequireAuth.tsx'
+import AdminLayout from './components/AdminLayout.tsx'
 import NavBar from './components/NavBar.tsx'
-import AdminPage from './pages/AdminPage.tsx'
+import AdminBusesPage from './pages/admin/AdminBusesPage.tsx'
+import AdminDriversPage from './pages/admin/AdminDriversPage.tsx'
+import AdminJourneysPage from './pages/admin/AdminJourneysPage.tsx'
+import AdminReportsPage from './pages/admin/AdminReportsPage.tsx'
 import DriverPage from './pages/DriverPage.tsx'
 import GuestPage from './pages/GuestPage.tsx'
 import HomeRedirect from './pages/HomeRedirect.tsx'
@@ -56,14 +60,21 @@ function App() {
               </RequireAuth>
             }
           />
+          {/* The admin area has its own sidebar and one page per section (#77) */}
           <Route
             path="/admin"
             element={
               <RequireAuth role="admin">
-                <AdminPage />
+                <AdminLayout />
               </RequireAuth>
             }
-          />
+          >
+            <Route index element={<Navigate to="buses" replace />} />
+            <Route path="buses" element={<AdminBusesPage />} />
+            <Route path="drivers" element={<AdminDriversPage />} />
+            <Route path="journeys" element={<AdminJourneysPage />} />
+            <Route path="reports" element={<AdminReportsPage />} />
+          </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

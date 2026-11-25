@@ -141,7 +141,6 @@ function ReportSection({ token }: Props) {
 
   return (
     <>
-      <h2>Reports</h2>
       <form className="panel report-period" onSubmit={handleSubmit}>
         <label>
           From

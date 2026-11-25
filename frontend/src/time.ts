@@ -18,3 +18,14 @@ export function clockIn(minutes: number, now: number): string {
 export function clockAt(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 }
+
+// "Today 7:20", "Yesterday 17:05" or "3 Oct", for when something last happened
+export function dayAndTime(iso: string, now: number): string {
+  const day = new Date(iso)
+  const daysAgo = Math.round(
+    (new Date(now).setHours(0, 0, 0, 0) - new Date(iso).setHours(0, 0, 0, 0)) / 86_400_000,
+  )
+  if (daysAgo === 0) return `Today ${clockAt(iso)}`
+  if (daysAgo === 1) return `Yesterday ${clockAt(iso)}`
+  return day.toLocaleDateString([], { day: 'numeric', month: 'short' })
+}
