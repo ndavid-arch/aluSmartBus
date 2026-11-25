@@ -10,6 +10,8 @@ export type BusStatus = {
   availability: Availability
   unavailable_reason: string | null
   journey_id?: string | null // the journey it is on right now (public bus list only)
+  boarded?: number | null // students who scanned on that journey (#28); null when not on the road
+  full?: boolean // boarded has reached capacity; shown only, boarding is never blocked
 }
 
 // A bus as the admin sees it: its status plus the text printed as its QR sticker

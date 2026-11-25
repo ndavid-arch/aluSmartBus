@@ -83,7 +83,10 @@ function StudentBusList({ token }: Props) {
               onClick={() => handleSelect(bus.id)}
             >
               {bus.plate_number}
-              <StatusBadge availability={bus.availability} />
+              <span className="badges">
+                {bus.full && <span className="badge badge-full">Full</span>}
+                <StatusBadge availability={bus.availability} />
+              </span>
             </button>
           </li>
         ))}

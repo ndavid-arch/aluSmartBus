@@ -4,5 +4,5 @@ pydantic-settings==2.16.2
 alembic==1.20.1
 psycopg-binary==3.3.8
 SQLAlchemy==2.1.8
-pwdlib==0.4.2
+pwdlib[argon2]==0.4.2
 PyJWT==2.15.1

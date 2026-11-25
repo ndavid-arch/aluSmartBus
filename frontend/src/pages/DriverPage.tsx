@@ -5,13 +5,14 @@ import AvailabilityEditor from '../components/AvailabilityEditor'
 import EndJourneyButton from '../components/EndJourneyButton'
 import JourneyList from '../components/JourneyList'
 import LocationSharing from '../components/LocationSharing'
+import SeatCount from '../components/SeatCount'
 import StartJourneyForm from '../components/StartJourneyForm'
 import StopRequestList from '../components/StopRequestList'
 import { useActiveJourneys } from '../hooks/useActiveJourneys'
 import { useBusStatus } from '../hooks/useBusStatus'
 
 // The driver area: start (#15), share (#16) and end (#20) a journey; see who waits where (#24);
-// see who is on the road; mark buses Available (#14)
+// see how full the bus is (#28); see who is on the road; mark buses Available (#14)
 function DriverPage() {
   const { user, token } = useAuth()
   const { buses, loadError, replaceBus } = useBusStatus()
@@ -54,6 +55,7 @@ function DriverPage() {
             <EndJourneyButton journeyId={myJourney.id} token={token} onEnded={handleEnded} />
           </div>
           <LocationSharing journeyId={myJourney.id} token={token} onEnded={handleEnded} />
+          <SeatCount busId={myJourney.bus.id} />
           <StopRequestList journeyId={myJourney.id} token={token} />
         </>
       ) : (

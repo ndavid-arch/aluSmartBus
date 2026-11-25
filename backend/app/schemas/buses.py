@@ -63,6 +63,10 @@ class BusStatus(BaseModel):
     # The journey it is on right now, so students can choose their stops (#21);
     # filled in by the public bus list, None when the bus is not on the road
     journey_id: uuid.UUID | None = None
+    # Students who scanned on that journey (#28), and whether that reaches the capacity;
+    # Full is only shown, never enforced: the driver decides (FR-54)
+    boarded: int | None = None
+    full: bool = False
 
 
 class BusOut(BusStatus):
